@@ -1016,6 +1016,7 @@
 
         /* ── PRINT ── */
         @media print {
+            /* Hide all non-essential UI */
             header,
             footer,
             .toast,
@@ -1038,8 +1039,26 @@
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
+            /* Hide all tool sections except the active one */
+            .tool-section {
+                display: none !important;
+            }
+            body.viewing-photos #photos {
+                display: block !important;
+            }
+            body.viewing-polaroid #polaroid {
+                display: block !important;
+            }
+            body.viewing-photos #id-print,
+            body.viewing-photos #polaroid {
+                display: none !important;
+            }
+            body.viewing-polaroid #id-print,
+            body.viewing-polaroid #photos {
+                display: none !important;
+            }
 
-            /* ID PRINT */
+            /* ── ID PRINT ── */
             #id-print {
                 display: block !important;
             }
@@ -1121,10 +1140,7 @@
                 background: transparent !important;
             }
 
-            /* ── POLAROID PRINT – only the A4 sheet, no empty pages ── */
-            body.viewing-polaroid #polaroid {
-                display: block !important;
-            }
+            /* ── POLAROID – only the A4 sheet ── */
             body.viewing-polaroid .polaroid-a4-paper {
                 box-shadow: none !important;
                 margin: 0 !important;
@@ -1145,13 +1161,26 @@
             body.viewing-polaroid .polaroid-caption input::placeholder {
                 opacity: 0;
             }
-            /* Hide any extra generated elements */
+            /* Hide any extra wrapper that might cause extra pages */
+            body.viewing-polaroid #polaroid > div:not(.polaroid-a4-paper) {
+                display: none !important;
+            }
             body.viewing-polaroid .polaroid-hero,
             body.viewing-polaroid .polaroid-toolbar {
                 display: none !important;
             }
+            /* Ensure the paper is the only content */
+            body.viewing-polaroid #polaroid {
+                display: block !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                background: white !important;
+            }
+            body.viewing-polaroid .polaroid-a4-paper {
+                margin: 0 auto !important;
+            }
 
-            /* ── PHOTO PRINT ── */
+            /* ── PHOTOS – only active sheet ── */
             body.viewing-photos #photos {
                 display: block !important;
             }
@@ -1161,7 +1190,10 @@
                 display: block !important;
                 background: white !important;
                 background-image: none !important;
+                min-height: 0 !important;
+                height: auto !important;
             }
+            /* Hide all photo sheets by default */
             body.viewing-photos .photo-sheet {
                 display: none !important;
                 box-shadow: none !important;
@@ -1172,12 +1204,14 @@
                 padding: 0 !important;
                 border: none !important;
             }
+            /* Show only the active sheet */
             body.viewing-photos .photo-sheet.active-print-sheet {
                 display: grid !important;
             }
             body.viewing-photos .photo-sheet.sheet-mixed.active-print-sheet {
                 display: flex !important;
             }
+            /* Remove any extra spacing */
             body.viewing-photos .photo-slot {
                 border: none !important;
                 background: white !important;
@@ -1196,7 +1230,10 @@
             body.viewing-photos .photo-slot.empty {
                 background: white !important;
             }
-
+            /* Hide any leftover children of photo-wrapper that are not the sheet */
+            body.viewing-photos .photo-wrapper > *:not(.photo-sheet) {
+                display: none !important;
+            }
             /* Page size mapping */
             body.viewing-photos .sheet-mm.active-print-sheet,
             body.viewing-photos .sheet-inch.active-print-sheet,
@@ -1490,7 +1527,6 @@
             else if (id === 'polaroid') document.body.classList.add('viewing-polaroid');
             else if (id === 'id-print') setMode(currentMode || 'a6');
             if (id === 'polaroid') {
-                // ensure only one page in print
                 setTimeout(function() {
                     document.querySelectorAll('.polaroid-a4-paper').forEach(function(el) {
                         el.style.display = 'grid';
@@ -1740,7 +1776,6 @@
                     });
                 })(j);
             }
-            // ensure print shows only one page
             paper.style.display = 'grid';
         }
 
@@ -1804,7 +1839,7 @@
         }
 
         /* ================================================================
-           PHOTOS — fixed sheet sizes (4R / 5R / A4)
+           PHOTOS — fixed sizes and print preview
         ================================================================ */
         var currentPhotoSheetId = 'photo-sheet-mm';
 
