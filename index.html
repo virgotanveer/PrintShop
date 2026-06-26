@@ -1,1218 +1,350 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>PrintStudio | All-in-One Printing Tool</title>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMGQ5NDg4IiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTYgOVYyaDEydjciLz48cGF0aCBkPSJNNiAxOEg0YTIgMiAwIDAgMSAxLTItMnYtNWEyIDIgMCAwIDEgMi0yaDE2YTIgMiAwIDAgMSAyIDJ2NWEyIDIgMCAwIDEtMiAyaC0yIi8+PHBhdGggZD0iTTYgMTRoMTJ2OEg2eiIvPjwvc3ZnPg==" />
-    <script src="https://cdn.tailwindcss.com">
-    </script>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=DM+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js">
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js">
-    </script>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMGQ5NDg4IiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTYgOVYyaDEydjciLz48cGF0aCBkPSJNNiAxOEg0YTIgMiAwIDAgMSAxLTItMnYtNWEyIDIgMCAwIDEgMi0yaDE2YTIgMiAwIDAgMSAyIDJ2NWEyIDIgMCAwIDEtMiAyaC0yIi8+PHBhdGggZD0iNiAxNGgxMnY4SDZ6Ii8+PC9zdmc+">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=DM+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <script>
-        if (typeof pdfjsLib !== 'undefined') {
-            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-        }
+      if (typeof pdfjsLib !== 'undefined') {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      }
     </script>
     <style>
-        /* ── ROOT ── */
         :root {
-            --accent: #0d9488;
-            --accent-hover: #0f766e;
-            --accent-glow: rgba(13, 148, 136, 0.15);
-            --accent-light: #f0fdfa;
-            --warn: #d97706;
-            --warn-light: #fffbeb;
-            --danger: #dc2626;
-            --danger-light: #fef2f2;
-            --success: #059669;
-            --success-glow: rgba(5, 150, 105, 0.3);
-            --bg: #f5f3ef;
-            --bg-dot: #d6d3d1;
-            --surface: #ffffff;
-            --surface-elevated: #fafaf9;
-            --text: #1c1917;
-            --text-secondary: #57534e;
-            --text-muted: #a8a29e;
-            --border: #e7e5e4;
-            --header-bg: #1c1917;
-            --header-text: #fafaf9;
-            --shadow-sm: 0 1px 2px rgba(28, 25, 23, 0.04);
-            --shadow: 0 4px 12px rgba(28, 25, 23, 0.06), 0 1px 3px rgba(28, 25, 23, 0.04);
-            --shadow-md: 0 8px 24px rgba(28, 25, 23, 0.08), 0 2px 6px rgba(28, 25, 23, 0.04);
-            --shadow-lg: 0 16px 40px rgba(28, 25, 23, 0.1), 0 4px 12px rgba(28, 25, 23, 0.05);
-            --radius: 10px;
-            --radius-lg: 14px;
-            --a6-w: 105mm;
-            --a6-h: 148mm;
-            --a4-w: 210mm;
-            --a4-h: 297mm;
-            --card-w: 85.6mm;
-            --card-h: 54mm;
-            --a6-v-gap: 13.33mm;
-            --a4-v-gap: 16.2mm;
-            --a4-h-gap: 12.9mm;
+            --accent:#0d9488;--accent-hover:#0f766e;--accent-glow:rgba(13,148,136,0.15);--accent-light:#f0fdfa;
+            --warn:#d97706;--warn-light:#fffbeb;--danger:#dc2626;--danger-light:#fef2f2;
+            --success:#059669;--success-glow:rgba(5,150,105,0.3);
+            --bg:#f5f3ef;--bg-dot:#d6d3d1;--surface:#ffffff;--surface-elevated:#fafaf9;
+            --text:#1c1917;--text-secondary:#57534e;--text-muted:#a8a29e;
+            --border:#e7e5e4;--header-bg:#1c1917;--header-text:#fafaf9;
+            --shadow-sm:0 1px 2px rgba(28,25,23,0.04);
+            --shadow:0 4px 12px rgba(28,25,23,0.06),0 1px 3px rgba(28,25,23,0.04);
+            --shadow-md:0 8px 24px rgba(28,25,23,0.08),0 2px 6px rgba(28,25,23,0.04);
+            --shadow-lg:0 16px 40px rgba(28,25,23,0.1),0 4px 12px rgba(28,25,23,0.05);
+            --radius:10px;--radius-lg:14px;
+            --a6-w:105mm;--a6-h:148mm;--a4-w:210mm;--a4-h:297mm;
+            --card-w:85.6mm;--card-h:54mm;
+            --a6-v-gap:13.33mm;--a4-v-gap:16.2mm;--a4-h-gap:12.9mm;
         }
-        *,
-        *::before,
-        *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        html {
-            scroll-behavior: smooth;
-        }
-        body {
-            min-height: 100vh;
-            background-color: var(--bg);
-            background-image: radial-gradient(circle, var(--bg-dot) 0.6px, transparent 0.6px);
-            background-size: 20px 20px;
-            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-            color: var(--text);
-            line-height: 1.5;
-            -webkit-font-smoothing: antialiased;
-        }
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        html{scroll-behavior:smooth}
+        body{min-height:100vh;background-color:var(--bg);background-image:radial-gradient(circle,var(--bg-dot) 0.6px,transparent 0.6px);background-size:20px 20px;font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased}
+        header{background:var(--header-bg);border-bottom:1px solid rgba(255,255,255,0.06);position:sticky;top:0;z-index:1000}
+        .header-inner{max-width:1280px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center;height:64px}
+        .logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--header-text);font-weight:700;font-size:1.15rem;letter-spacing:-0.02em;transition:opacity .2s}
+        .logo:hover{opacity:.85}
+        .logo-icon{width:32px;height:32px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
+        .logo:hover .logo-icon{transform:rotate(-8deg) scale(1.05)}
+        .logo-icon svg{width:18px;height:18px}
+        nav{display:flex;gap:4px;background:rgba(255,255,255,0.06);border-radius:var(--radius);padding:4px}
+        .nav-btn{background:transparent;border:none;padding:8px 18px;font-size:.875rem;font-weight:500;color:rgba(250,250,249,0.5);cursor:pointer;border-radius:7px;transition:all .25s cubic-bezier(.4,0,.2,1);font-family:inherit}
+        .nav-btn:hover{color:rgba(250,250,249,0.85);background:rgba(255,255,255,0.06)}
+        .nav-btn.active{color:var(--header-text);background:rgba(255,255,255,0.12);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,0.2)}
+        main{min-height:calc(100vh - 64px - 60px)}
+        .tool-section{display:none;animation:toolIn .35s cubic-bezier(.4,0,.2,1)}
+        .tool-section.active{display:block}
+        @keyframes toolIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+        .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;font-size:.8125rem;font-weight:600;font-family:inherit;border:1.5px solid transparent;border-radius:8px;cursor:pointer;transition:all .2s cubic-bezier(.4,0,.2,1);white-space:nowrap}
+        .btn:active{transform:scale(.97)}
+        .btn svg{flex-shrink:0}
+        .btn-ghost{background:transparent;border-color:var(--border);color:var(--text-secondary)}
+        .btn-ghost:hover{background:var(--surface-elevated);border-color:var(--text-muted);color:var(--text)}
+        .btn-accent{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 2px 8px var(--accent-glow)}
+        .btn-accent:hover{background:var(--accent-hover);border-color:var(--accent-hover);transform:translateY(-1px)}
+        .btn-warn{background:transparent;border-color:var(--warn);color:var(--warn)}
+        .btn-warn:hover{background:var(--warn-light)}
+        .btn-danger{background:transparent;border-color:var(--danger);color:var(--danger)}
+        .btn-danger:hover{background:var(--danger-light)}
+        .btn-success{background:var(--success);border-color:var(--success);color:#fff;box-shadow:0 2px 8px var(--success-glow)}
+        .btn-success:hover{background:#047857;transform:translateY(-1px)}
+        .btn-dark{background:var(--text);border-color:var(--text);color:#fff}
+        .btn-dark:hover{background:#292524;transform:translateY(-1px)}
 
-        /* ── HEADER ── */
-        header {
-            background: var(--header-bg);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-        .header-inner {
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 0 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            height: 64px;
-        }
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-            color: var(--header-text);
-            font-weight: 700;
-            font-size: 1.15rem;
-            letter-spacing: -0.02em;
-            transition: opacity .2s;
-        }
-        .logo:hover {
-            opacity: .85;
-        }
-        .logo-icon {
-            width: 32px;
-            height: 32px;
-            background: var(--accent);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform .3s cubic-bezier(.34, 1.56, .64, 1);
-        }
-        .logo:hover .logo-icon {
-            transform: rotate(-8deg) scale(1.05);
-        }
-        .logo-icon svg {
-            width: 18px;
-            height: 18px;
-        }
-        nav {
-            display: flex;
-            gap: 4px;
-            background: rgba(255, 255, 255, 0.06);
-            border-radius: var(--radius);
-            padding: 4px;
-        }
-        .nav-btn {
-            background: transparent;
-            border: none;
-            padding: 8px 18px;
-            font-size: .875rem;
-            font-weight: 500;
-            color: rgba(250, 250, 249, 0.5);
-            cursor: pointer;
-            border-radius: 7px;
-            transition: all .25s cubic-bezier(.4, 0, .2, 1);
-            font-family: inherit;
-        }
-        .nav-btn:hover {
-            color: rgba(250, 250, 249, 0.85);
-            background: rgba(255, 255, 255, 0.06);
-        }
-        .nav-btn.active {
-            color: var(--header-text);
-            background: rgba(255, 255, 255, 0.12);
-            font-weight: 600;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-        }
+        /* ID PRINT */
+        #id-print{padding:0}
+        .id-app-container{display:flex;flex-direction:column;align-items:center;padding:24px 20px 80px;gap:20px;background:linear-gradient(180deg,#e7e5e0 0%,var(--bg) 100%);margin-top:-1px}
+        .id-toolbar{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center;background:rgba(255,255,255,0.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);padding:10px 16px;border-radius:var(--radius-lg);border:1px solid rgba(231,229,228,0.6);box-shadow:var(--shadow-md);position:sticky;top:12px;z-index:100;max-width:95vw}
+        .toolbar-divider{width:1px;height:24px;background:var(--border);flex-shrink:0}
+        .mode-toggle{display:flex;gap:0;background:var(--bg);border-radius:8px;padding:3px}
+        .mode-toggle .btn{border:none;border-radius:6px;padding:6px 14px;font-size:.8rem;box-shadow:none}
+        .mode-toggle .btn.active{background:var(--accent);color:#fff;box-shadow:0 1px 4px var(--accent-glow)}
+        .mode-toggle .btn:not(.active){background:transparent;color:var(--text-secondary)}
+        .mode-toggle .btn:not(.active):hover{color:var(--text);background:rgba(255,255,255,0.6)}
+        .duplex-banner{display:flex;align-items:center;gap:16px;background:linear-gradient(135deg,#ecfdf5 0%,#f0fdfa 100%);border:1.5px solid #a7f3d0;border-radius:var(--radius-lg);padding:14px 22px;max-width:740px;width:100%;box-shadow:var(--shadow-sm)}
+        .duplex-diagram{display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0}
+        .duplex-page{width:44px;height:62px;border:2px solid #6ee7b7;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:.55rem;font-weight:700;color:#047857;text-transform:uppercase;background:#fff}
+        .duplex-page.back{border-color:#fbbf24;color:#92400e;background:#fffbeb}
+        .duplex-arrow{color:#6ee7b7;font-size:.6rem;font-weight:600}
+        .duplex-arrow svg{width:16px;height:16px}
+        .duplex-text{font-size:.8rem;color:#065f46;line-height:1.5}
+        .duplex-text strong{color:#047857}
+        .duplex-text small{display:block;margin-top:3px;color:#6b7280;font-size:.7rem}
+        .id-sheet-label{position:absolute;top:-32px;left:0;width:100%;text-align:center;font-weight:700;font-size:.6875rem;letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:8px}
+        .id-sheet-label.front-label{color:var(--accent)}
+        .id-sheet-label.back-label{color:var(--warn)}
+        .label-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:4px;font-size:.6rem;font-weight:700;letter-spacing:.05em}
+        .label-badge.page-num{background:#f1f5f9;color:#475569}
+        .label-badge.side{padding:2px 6px}
+        .label-badge.side.front{background:#ccfbf1;color:#0f766e}
+        .label-badge.side.back{background:#fef3c7;color:#92400e}
+        .id-layout-area{display:flex;flex-wrap:wrap;gap:50px;justify-content:center;align-items:flex-start;padding-bottom:40px}
+        .id-sheet{background:var(--surface);box-shadow:var(--shadow-lg);display:flex;flex-direction:column;align-items:center;position:relative;overflow:hidden;border-radius:2px;transition:box-shadow .3s}
+        .id-sheet:hover{box-shadow:0 20px 50px rgba(28,25,23,0.12),0 6px 16px rgba(28,25,23,0.06)}
+        .a6-only .id-sheet{width:var(--a6-w);height:var(--a6-h);padding-top:var(--a6-v-gap);gap:var(--a6-v-gap)}
+        .a4-only .id-sheet{width:var(--a4-w);height:var(--a4-h);padding:var(--a4-v-gap) var(--a4-h-gap);display:grid;grid-template-columns:repeat(2,var(--card-w));grid-template-rows:repeat(4,var(--card-h));gap:var(--a4-v-gap) var(--a4-h-gap);justify-content:center;align-content:center}
+        .a6-only,.a4-only{display:none}
+        body.mode-a6 .a6-only{display:flex}
+        body.mode-a4 .a4-only{display:flex}
+        .card-slot{width:var(--card-w);height:var(--card-h);border:2px dashed var(--border);border-radius:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;position:relative;overflow:hidden;background:var(--surface-elevated);transition:all .25s}
+        .card-slot:hover{border-color:var(--accent);background:var(--accent-light)}
+        .card-slot.drag-over{border-color:var(--success);background:#ecfdf5;transform:scale(1.02);box-shadow:0 0 0 3px rgba(5,150,105,0.15)}
+        .card-slot img{width:100%;height:100%;object-fit:cover;display:none}
+        .card-slot.has-image img{display:block}
+        .card-slot.has-image .placeholder-text{display:none}
+        .card-slot.has-image{border-color:transparent}
+        .placeholder-text{text-align:center;color:var(--text-muted);pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:4px}
+        .placeholder-text svg{width:22px;height:22px;opacity:.4}
+        .placeholder-text span{font-size:.625rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+        .card-number{position:absolute;bottom:2px;right:4px;font-size:9px;color:rgba(0,0,0,0.12);font-weight:700;pointer-events:none;z-index:10}
+        .rotate-90{transform:rotate(90deg)}.rotate-180{transform:rotate(180deg)}.rotate-270{transform:rotate(270deg)}
+        .fit-contain img{object-fit:contain!important;background:#fff}
+        .flip-indicator{display:flex;flex-direction:column;align-items:center;gap:4px;align-self:center;color:var(--text-muted)}
+        .flip-indicator svg{width:24px;height:24px;animation:flipP 2s ease-in-out infinite}
+        .flip-indicator span{font-size:.6rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;white-space:nowrap}
+        @keyframes flipP{0%,100%{opacity:.4;transform:translateY(0)}50%{opacity:.8;transform:translateY(3px)}}
 
-        /* ── TOOL SECTIONS ── */
-        main {
-            min-height: calc(100vh - 64px - 60px);
-        }
-        .tool-section {
-            display: none;
-            animation: toolIn .35s cubic-bezier(.4, 0, .2, 1);
-        }
-        .tool-section.active {
-            display: block;
-        }
-        @keyframes toolIn {
-            from {
-                opacity: 0;
-                transform: translateY(8px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+        /* POLAROID */
+        #polaroid{padding:0}
+        body.viewing-polaroid{font-family:'Space Grotesk',sans-serif;color:#1a1814;background:#f5f3ef;background-image:radial-gradient(circle,#d6d3d1 0.6px,transparent 0.6px);background-size:20px 20px}
+        .polaroid-hero{text-align:center;padding:36px 20px 20px;background:linear-gradient(180deg,rgba(255,255,255,0.7) 0%,transparent 100%)}
+        .polaroid-hero h1{font-size:1.75rem;font-weight:600;letter-spacing:-0.02em;margin-bottom:6px}
+        .polaroid-hero p{color:#78716c;font-size:.875rem}
+        .polaroid-a4-paper{width:210mm;height:297mm;background:white;position:relative;margin:20px auto;box-shadow:var(--shadow-lg);display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr)}
+        .polaroid-cell{width:70mm;height:99mm;position:relative;display:flex;flex-direction:column;align-items:center;background:#fff}
+        .polaroid-image-area{width:58.42mm;height:68.58mm;margin-top:6mm;background:#f0eeea;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;border:1.5px dashed #d4d0c8;cursor:pointer;transition:all .2s}
+        .polaroid-image-area.has-image{border:none;cursor:default}
+        .polaroid-image-area img{width:100%;height:100%;object-fit:cover}
+        .polaroid-image-area.drag-over{background:#d1fae5;border-color:var(--success)}
+        .polaroid-caption{flex:1;width:100%;display:flex;align-items:center;justify-content:center;padding:0 5mm}
+        .polaroid-caption input{width:100%;border:none;background:transparent;text-align:center;font-family:'Caveat',cursive;font-size:16pt;color:#1a1814;outline:none}
+        .polaroid-caption input::placeholder{color:#e0ddd8}
+        .drop-zone-indicator{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#a8a29e;pointer-events:none;transition:opacity .2s;font-size:.625rem;font-weight:500}
+        .drop-zone-indicator svg{width:18px;height:18px;opacity:.5}
+        .polaroid-image-area.has-image .drop-zone-indicator{opacity:0}
+        .polaroid-clear-btn{position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,0.5);color:white;border:none;cursor:pointer;display:none;align-items:center;justify-content:center;font-size:13px;z-index:10;line-height:1}
+        .polaroid-clear-btn:hover{background:rgba(220,38,38,0.8)}
+        .polaroid-image-area.has-image:hover .polaroid-clear-btn{display:flex}
+        .cut-line{position:absolute;background:transparent;z-index:100;pointer-events:none}
+        .cut-line-v{top:0;bottom:0;width:0;border-left:.5px dashed #bbb}
+        .cut-line-h{left:0;right:0;height:0;border-top:.5px dashed #bbb}
+        .polaroid-toolbar{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);display:flex;gap:10px;padding:10px 18px;background:rgba(255,255,255,0.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:var(--radius-lg);border:1px solid var(--border);box-shadow:var(--shadow-lg);z-index:1000}
+        .polaroid-toolbar .btn{font-family:'Space Grotesk',sans-serif}
+        .polaroid-btn-primary{background:#c2410c;border-color:#c2410c;color:#fff}
+        .polaroid-btn-primary:hover{background:#9a3412;border-color:#9a3412;transform:translateY(-1px)}
 
-        /* ── BUTTONS ── */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 8px 16px;
-            font-size: .8125rem;
-            font-weight: 600;
-            font-family: inherit;
-            border: 1.5px solid transparent;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all .2s cubic-bezier(.4, 0, .2, 1);
-            white-space: nowrap;
-        }
-        .btn:active {
-            transform: scale(.97);
-        }
-        .btn svg {
-            flex-shrink: 0;
-        }
-        .btn-ghost {
-            background: transparent;
-            border-color: var(--border);
-            color: var(--text-secondary);
-        }
-        .btn-ghost:hover {
-            background: var(--surface-elevated);
-            border-color: var(--text-muted);
-            color: var(--text);
-        }
-        .btn-accent {
-            background: var(--accent);
-            border-color: var(--accent);
-            color: #fff;
-            box-shadow: 0 2px 8px var(--accent-glow);
-        }
-        .btn-accent:hover {
-            background: var(--accent-hover);
-            border-color: var(--accent-hover);
-            transform: translateY(-1px);
-        }
-        .btn-warn {
-            background: transparent;
-            border-color: var(--warn);
-            color: var(--warn);
-        }
-        .btn-warn:hover {
-            background: var(--warn-light);
-        }
-        .btn-danger {
-            background: transparent;
-            border-color: var(--danger);
-            color: var(--danger);
-        }
-        .btn-danger:hover {
-            background: var(--danger-light);
-        }
-        .btn-success {
-            background: var(--success);
-            border-color: var(--success);
-            color: #fff;
-            box-shadow: 0 2px 8px var(--success-glow);
-        }
-        .btn-success:hover {
-            background: #047857;
-            transform: translateY(-1px);
-        }
-        .btn-dark {
-            background: var(--text);
-            border-color: var(--text);
-            color: #fff;
-        }
-        .btn-dark:hover {
-            background: #292524;
-            transform: translateY(-1px);
-        }
+        /* PHOTOS */
+        #photos{padding:0}
+        .photo-wrapper{display:flex;flex-direction:column;gap:14px;align-items:center;padding:24px 16px 80px;background:linear-gradient(180deg,#e7e5e0 0%,var(--bg) 100%);margin-top:-1px}
+        .photo-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;background:rgba(255,255,255,0.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);padding:10px 16px;border-radius:var(--radius-lg);border:1px solid rgba(231,229,228,0.6);box-shadow:var(--shadow-md)}
+        .photo-toolbar input{display:none}
+        .photo-tabs{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center}
+        .photo-tab{padding:6px 12px;border:1.5px solid var(--border);background:var(--surface);color:var(--text-secondary);border-radius:8px;cursor:pointer;font-size:.8rem;font-weight:500;font-family:inherit;transition:all .2s}
+        .photo-tab:hover{border-color:var(--text-muted);color:var(--text)}
+        .photo-tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+        .photo-hint{font-size:.75rem;color:var(--text-muted);text-align:center}
+        .photo-hint b{color:var(--warn)}
+        .photo-sheet{width:var(--sheet-w,127mm);height:var(--sheet-h,177.8mm);background:#fff;box-shadow:var(--shadow-lg);display:grid;justify-content:center;align-content:center;gap:2mm;position:relative;user-select:none;padding:4mm;box-sizing:border-box}
+        .sheet-mm{--photo-w:45mm;--photo-h:35mm;grid-template-columns:repeat(2,var(--photo-w));grid-template-rows:repeat(3,var(--photo-h))}
+        .sheet-inch{--photo-w:1.5in;--photo-h:1.5in;grid-template-columns:repeat(2,var(--photo-w));grid-template-rows:repeat(3,var(--photo-h))}
+        .sheet-5r{--photo-w:2in;--photo-h:2in;grid-template-columns:repeat(2,var(--photo-w));grid-template-rows:repeat(3,var(--photo-h))}
+        .sheet-5r-50x70{--photo-w:50mm;--photo-h:70mm;grid-template-columns:repeat(2,var(--photo-w));grid-template-rows:repeat(2,var(--photo-h))}
+        .sheet-4r-1_5x2{--photo-w:1.5in;--photo-h:2in;grid-template-columns:repeat(2,var(--photo-w));grid-template-rows:repeat(2,var(--photo-h))}
+        .sheet-5r-50x60{--sheet-w:127mm;--sheet-h:177.8mm;--photo-w:50mm;--photo-h:60mm;grid-template-columns:repeat(2,var(--photo-w));grid-template-rows:repeat(2,var(--photo-h))}
+        .sheet-a4-30{--sheet-w:210mm;--sheet-h:297mm;--photo-w:35mm;--photo-h:45mm;grid-template-columns:repeat(5,var(--photo-w));grid-template-rows:repeat(6,var(--photo-h))}
+        .sheet-mixed{display:flex;flex-direction:column;align-items:center;gap:4mm;justify-content:center}
+        .photo-group{display:grid;grid-template-columns:repeat(2,var(--photo-w));grid-template-rows:repeat(2,var(--photo-h));gap:2mm;justify-content:center;align-content:center}
+        .group-1in{--photo-w:1in;--photo-h:1in}
+        .group-35x45{--photo-w:45mm;--photo-h:35mm}
+        .photo-slot{width:var(--photo-w);height:var(--photo-h);border:.2mm solid #000;background:#fff;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+        .photo-slot img{width:100%;height:100%;object-fit:cover}
+        .photo-slot.rotated img{width:var(--photo-h);height:var(--photo-w);transform:rotate(-90deg);object-fit:cover}
+        .photo-slot.empty{background:repeating-linear-gradient(45deg,#f5f5f4,#f5f5f4 6px,#e7e5e4 6px,#e7e5e4 12px)}
+        .photo-drop-mask{position:absolute;inset:0;border:2px dashed var(--accent);border-radius:4px;display:none;pointer-events:none}
+        .photo-sheet.drag .photo-drop-mask{display:block}
+        .hidden-photo{display:none}
+        footer{text-align:center;padding:24px;color:var(--text-muted);font-size:.8125rem;border-top:1px solid var(--border);background:var(--surface)}
+        .toast{position:fixed;bottom:24px;right:24px;background:var(--text);color:#fff;padding:12px 22px;border-radius:var(--radius);box-shadow:var(--shadow-lg);font-size:.875rem;font-weight:500;transform:translateY(80px);opacity:0;transition:all .35s cubic-bezier(.4,0,.2,1);z-index:2000;pointer-events:none}
+        .toast.show{transform:translateY(0);opacity:1}
 
-        /* ── ID PRINT ── */
-        #id-print {
-            padding: 0;
-        }
-        .id-app-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 24px 20px 80px;
-            gap: 20px;
-            background: linear-gradient(180deg, #e7e5e0 0%, var(--bg) 100%);
-            margin-top: -1px;
-        }
-        .id-toolbar {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: center;
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            padding: 10px 16px;
-            border-radius: var(--radius-lg);
-            border: 1px solid rgba(231, 229, 228, 0.6);
-            box-shadow: var(--shadow-md);
-            position: sticky;
-            top: 12px;
-            z-index: 100;
-            max-width: 95vw;
-        }
-        .toolbar-divider {
-            width: 1px;
-            height: 24px;
-            background: var(--border);
-            flex-shrink: 0;
-        }
-        .mode-toggle {
-            display: flex;
-            gap: 0;
-            background: var(--bg);
-            border-radius: 8px;
-            padding: 3px;
-        }
-        .mode-toggle .btn {
-            border: none;
-            border-radius: 6px;
-            padding: 6px 14px;
-            font-size: .8rem;
-            box-shadow: none;
-        }
-        .mode-toggle .btn.active {
-            background: var(--accent);
-            color: #fff;
-            box-shadow: 0 1px 4px var(--accent-glow);
-        }
-        .mode-toggle .btn:not(.active) {
-            background: transparent;
-            color: var(--text-secondary);
-        }
-        .mode-toggle .btn:not(.active):hover {
-            color: var(--text);
-            background: rgba(255, 255, 255, 0.6);
-        }
-        .duplex-banner {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            background: linear-gradient(135deg, #ecfdf5 0%, #f0fdfa 100%);
-            border: 1.5px solid #a7f3d0;
-            border-radius: var(--radius-lg);
-            padding: 14px 22px;
-            max-width: 740px;
-            width: 100%;
-            box-shadow: var(--shadow-sm);
-        }
-        .duplex-diagram {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            flex-shrink: 0;
-        }
-        .duplex-page {
-            width: 44px;
-            height: 62px;
-            border: 2px solid #6ee7b7;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: .55rem;
-            font-weight: 700;
-            color: #047857;
-            text-transform: uppercase;
-            background: #fff;
-        }
-        .duplex-page.back {
-            border-color: #fbbf24;
-            color: #92400e;
-            background: #fffbeb;
-        }
-        .duplex-arrow {
-            color: #6ee7b7;
-            font-size: .6rem;
-            font-weight: 600;
-        }
-        .duplex-arrow svg {
-            width: 16px;
-            height: 16px;
-        }
-        .duplex-text {
-            font-size: .8rem;
-            color: #065f46;
-            line-height: 1.5;
-        }
-        .duplex-text strong {
-            color: #047857;
-        }
-        .duplex-text small {
-            display: block;
-            margin-top: 3px;
-            color: #6b7280;
-            font-size: .7rem;
-        }
-        .id-sheet-label {
-            position: absolute;
-            top: -32px;
-            left: 0;
-            width: 100%;
-            text-align: center;
-            font-weight: 700;
-            font-size: .6875rem;
-            letter-spacing: .1em;
-            text-transform: uppercase;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        .id-sheet-label.front-label {
-            color: var(--accent);
-        }
-        .id-sheet-label.back-label {
-            color: var(--warn);
-        }
-        .label-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: .6rem;
-            font-weight: 700;
-            letter-spacing: .05em;
-        }
-        .label-badge.page-num {
-            background: #f1f5f9;
-            color: #475569;
-        }
-        .label-badge.side {
-            padding: 2px 6px;
-        }
-        .label-badge.side.front {
-            background: #ccfbf1;
-            color: #0f766e;
-        }
-        .label-badge.side.back {
-            background: #fef3c7;
-            color: #92400e;
-        }
-        .id-layout-area {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 50px;
-            justify-content: center;
-            align-items: flex-start;
-            padding-bottom: 40px;
-        }
-        .id-sheet {
-            background: var(--surface);
-            box-shadow: var(--shadow-lg);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-            overflow: hidden;
-            border-radius: 2px;
-            transition: box-shadow .3s;
-        }
-        .id-sheet:hover {
-            box-shadow: 0 20px 50px rgba(28, 25, 23, 0.12), 0 6px 16px rgba(28, 25, 23, 0.06);
-        }
-        .a6-only .id-sheet {
-            width: var(--a6-w);
-            height: var(--a6-h);
-            padding-top: var(--a6-v-gap);
-            gap: var(--a6-v-gap);
-        }
-        .a4-only .id-sheet {
-            width: var(--a4-w);
-            height: var(--a4-h);
-            padding: var(--a4-v-gap) var(--a4-h-gap);
-            display: grid;
-            grid-template-columns: repeat(2, var(--card-w));
-            grid-template-rows: repeat(4, var(--card-h));
-            gap: var(--a4-v-gap) var(--a4-h-gap);
-            justify-content: center;
-            align-content: center;
-        }
-        .a6-only,
-        .a4-only {
-            display: none;
-        }
-        body.mode-a6 .a6-only {
-            display: flex;
-        }
-        body.mode-a4 .a4-only {
-            display: flex;
-        }
-        .card-slot {
-            width: var(--card-w);
-            height: var(--card-h);
-            border: 2px dashed var(--border);
-            border-radius: 4px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            background: var(--surface-elevated);
-            transition: all .25s;
-        }
-        .card-slot:hover {
-            border-color: var(--accent);
-            background: var(--accent-light);
-        }
-        .card-slot.drag-over {
-            border-color: var(--success);
-            background: #ecfdf5;
-            transform: scale(1.02);
-            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15);
-        }
-        .card-slot img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: none;
-        }
-        .card-slot.has-image img {
-            display: block;
-        }
-        .card-slot.has-image .placeholder-text {
-            display: none;
-        }
-        .card-slot.has-image {
-            border-color: transparent;
-        }
-        .placeholder-text {
-            text-align: center;
-            color: var(--text-muted);
-            pointer-events: none;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-        }
-        .placeholder-text svg {
-            width: 22px;
-            height: 22px;
-            opacity: .4;
-        }
-        .placeholder-text span {
-            font-size: .625rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: .05em;
-        }
-        .card-number {
-            position: absolute;
-            bottom: 2px;
-            right: 4px;
-            font-size: 9px;
-            color: rgba(0, 0, 0, 0.12);
-            font-weight: 700;
-            pointer-events: none;
-            z-index: 10;
-        }
-        .rotate-90 {
-            transform: rotate(90deg);
-        }
-        .rotate-180 {
-            transform: rotate(180deg);
-        }
-        .rotate-270 {
-            transform: rotate(270deg);
-        }
-        .fit-contain img {
-            object-fit: contain !important;
-            background: #fff;
-        }
-        .flip-indicator {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            align-self: center;
-            color: var(--text-muted);
-        }
-        .flip-indicator svg {
-            width: 24px;
-            height: 24px;
-            animation: flipP 2s ease-in-out infinite;
-        }
-        .flip-indicator span {
-            font-size: .6rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: .1em;
-            white-space: nowrap;
-        }
-        @keyframes flipP {
-            0%,
-            100% {
-                opacity: .4;
-                transform: translateY(0);
-            }
-            50% {
-                opacity: .8;
-                transform: translateY(3px);
-            }
-        }
-
-        /* ── POLAROID ── */
-        #polaroid {
-            padding: 0;
-        }
-        body.viewing-polaroid {
-            font-family: 'Space Grotesk', sans-serif;
-            color: #1a1814;
-            background: #f5f3ef;
-            background-image: radial-gradient(circle, #d6d3d1 0.6px, transparent 0.6px);
-            background-size: 20px 20px;
-        }
-        .polaroid-hero {
-            text-align: center;
-            padding: 36px 20px 20px;
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.7) 0%, transparent 100%);
-        }
-        .polaroid-hero h1 {
-            font-size: 1.75rem;
-            font-weight: 600;
-            letter-spacing: -0.02em;
-            margin-bottom: 6px;
-        }
-        .polaroid-hero p {
-            color: #78716c;
-            font-size: .875rem;
-        }
-        .polaroid-a4-paper {
-            width: 210mm;
-            height: 297mm;
-            background: white;
-            position: relative;
-            margin: 20px auto;
-            box-shadow: var(--shadow-lg);
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: repeat(3, 1fr);
-        }
-        .polaroid-cell {
-            width: 70mm;
-            height: 99mm;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background: #fff;
-        }
-        .polaroid-image-area {
-            width: 58.42mm;
-            height: 68.58mm;
-            margin-top: 6mm;
-            background: #f0eeea;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1.5px dashed #d4d0c8;
-            cursor: pointer;
-            transition: all .2s;
-        }
-        .polaroid-image-area.has-image {
-            border: none;
-            cursor: default;
-        }
-        .polaroid-image-area img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .polaroid-image-area.drag-over {
-            background: #d1fae5;
-            border-color: var(--success);
-        }
-        .polaroid-caption {
-            flex: 1;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0 5mm;
-        }
-        .polaroid-caption input {
-            width: 100%;
-            border: none;
-            background: transparent;
-            text-align: center;
-            font-family: 'Caveat', cursive;
-            font-size: 16pt;
-            color: #1a1814;
-            outline: none;
-        }
-        .polaroid-caption input::placeholder {
-            color: #e0ddd8;
-        }
-        .drop-zone-indicator {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-            color: #a8a29e;
-            pointer-events: none;
-            transition: opacity .2s;
-            font-size: .625rem;
-            font-weight: 500;
-        }
-        .drop-zone-indicator svg {
-            width: 18px;
-            height: 18px;
-            opacity: .5;
-        }
-        .polaroid-image-area.has-image .drop-zone-indicator {
-            opacity: 0;
-        }
-        .polaroid-clear-btn {
-            position: absolute;
-            top: 3px;
-            right: 3px;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: rgba(0, 0, 0, 0.5);
-            color: white;
-            border: none;
-            cursor: pointer;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            font-size: 13px;
-            z-index: 10;
-            line-height: 1;
-        }
-        .polaroid-clear-btn:hover {
-            background: rgba(220, 38, 38, 0.8);
-        }
-        .polaroid-image-area.has-image:hover .polaroid-clear-btn {
-            display: flex;
-        }
-        .cut-line {
-            position: absolute;
-            background: transparent;
-            z-index: 100;
-            pointer-events: none;
-        }
-        .cut-line-v {
-            top: 0;
-            bottom: 0;
-            width: 0;
-            border-left: .5px dashed #bbb;
-        }
-        .cut-line-h {
-            left: 0;
-            right: 0;
-            height: 0;
-            border-top: .5px dashed #bbb;
-        }
-        .polaroid-toolbar {
-            position: fixed;
-            bottom: 24px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 10px;
-            padding: 10px 18px;
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow-lg);
-            z-index: 1000;
-        }
-        .polaroid-toolbar .btn {
-            font-family: 'Space Grotesk', sans-serif;
-        }
-        .polaroid-btn-primary {
-            background: #c2410c;
-            border-color: #c2410c;
-            color: #fff;
-        }
-        .polaroid-btn-primary:hover {
-            background: #9a3412;
-            border-color: #9a3412;
-            transform: translateY(-1px);
-        }
-
-        /* ── PHOTOS ── */
-        #photos {
-            padding: 0;
-        }
-        .photo-wrapper {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-            align-items: center;
-            padding: 24px 16px 80px;
-            background: linear-gradient(180deg, #e7e5e0 0%, var(--bg) 100%);
-            margin-top: -1px;
-        }
-        .photo-toolbar {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            flex-wrap: wrap;
-            justify-content: center;
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            padding: 10px 16px;
-            border-radius: var(--radius-lg);
-            border: 1px solid rgba(231, 229, 228, 0.6);
-            box-shadow: var(--shadow-md);
-        }
-        .photo-toolbar input {
-            display: none;
-        }
-        .photo-tabs {
-            display: flex;
-            gap: 6px;
-            align-items: center;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        .photo-tab {
-            padding: 6px 12px;
-            border: 1.5px solid var(--border);
-            background: var(--surface);
-            color: var(--text-secondary);
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: .8rem;
-            font-weight: 500;
-            font-family: inherit;
-            transition: all .2s;
-        }
-        .photo-tab:hover {
-            border-color: var(--text-muted);
-            color: var(--text);
-        }
-        .photo-tab.active {
-            background: var(--accent);
-            color: #fff;
-            border-color: var(--accent);
-        }
-        .photo-hint {
-            font-size: .75rem;
-            color: var(--text-muted);
-            text-align: center;
-        }
-        .photo-hint b {
-            color: var(--warn);
-        }
-        .photo-sheet {
-            width: var(--sheet-w, 127mm);
-            height: var(--sheet-h, 177.8mm);
-            background: #fff;
-            box-shadow: var(--shadow-lg);
-            display: grid;
-            justify-content: center;
-            align-content: center;
-            gap: 2mm;
-            position: relative;
-            user-select: none;
-            padding: 4mm;
-            box-sizing: border-box;
-        }
-        .sheet-mm {
-            --photo-w: 45mm;
-            --photo-h: 35mm;
-            grid-template-columns: repeat(2, var(--photo-w));
-            grid-template-rows: repeat(3, var(--photo-h));
-        }
-        .sheet-inch {
-            --photo-w: 1.5in;
-            --photo-h: 1.5in;
-            grid-template-columns: repeat(2, var(--photo-w));
-            grid-template-rows: repeat(3, var(--photo-h));
-        }
-        .sheet-5r {
-            --photo-w: 2in;
-            --photo-h: 2in;
-            grid-template-columns: repeat(2, var(--photo-w));
-            grid-template-rows: repeat(3, var(--photo-h));
-        }
-        .sheet-5r-50x70 {
-            --photo-w: 50mm;
-            --photo-h: 70mm;
-            grid-template-columns: repeat(2, var(--photo-w));
-            grid-template-rows: repeat(2, var(--photo-h));
-        }
-        .sheet-4r-1_5x2 {
-            --photo-w: 1.5in;
-            --photo-h: 2in;
-            grid-template-columns: repeat(2, var(--photo-w));
-            grid-template-rows: repeat(2, var(--photo-h));
-        }
-        .sheet-5r-50x60 {
-            --sheet-w: 127mm;
-            --sheet-h: 177.8mm;
-            --photo-w: 50mm;
-            --photo-h: 60mm;
-            grid-template-columns: repeat(2, var(--photo-w));
-            grid-template-rows: repeat(2, var(--photo-h));
-        }
-        .sheet-a4-30 {
-            --sheet-w: 210mm;
-            --sheet-h: 297mm;
-            --photo-w: 35mm;
-            --photo-h: 45mm;
-            grid-template-columns: repeat(5, var(--photo-w));
-            grid-template-rows: repeat(6, var(--photo-h));
-        }
-        .sheet-mixed {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4mm;
-            justify-content: center;
-        }
-        .photo-group {
-            display: grid;
-            grid-template-columns: repeat(2, var(--photo-w));
-            grid-template-rows: repeat(2, var(--photo-h));
-            gap: 2mm;
-            justify-content: center;
-            align-content: center;
-        }
-        .group-1in {
-            --photo-w: 1in;
-            --photo-h: 1in;
-        }
-        .group-35x45 {
-            --photo-w: 45mm;
-            --photo-h: 35mm;
-        }
-        .photo-slot {
-            width: var(--photo-w);
-            height: var(--photo-h);
-            border: .2mm solid #000;
-            background: #fff;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .photo-slot img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .photo-slot.rotated img {
-            width: var(--photo-h);
-            height: var(--photo-w);
-            transform: rotate(-90deg);
-            object-fit: cover;
-        }
-        .photo-slot.empty {
-            background: repeating-linear-gradient(45deg, #f5f5f4, #f5f5f4 6px, #e7e5e4 6px, #e7e5e4 12px);
-        }
-        .photo-drop-mask {
-            position: absolute;
-            inset: 0;
-            border: 2px dashed var(--accent);
-            border-radius: 4px;
-            display: none;
-            pointer-events: none;
-        }
-        .photo-sheet.drag .photo-drop-mask {
-            display: block;
-        }
-        .hidden-photo {
-            display: none;
-        }
-        footer {
-            text-align: center;
-            padding: 24px;
-            color: var(--text-muted);
-            font-size: .8125rem;
-            border-top: 1px solid var(--border);
-            background: var(--surface);
-        }
-        .toast {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            background: var(--text);
-            color: #fff;
-            padding: 12px 22px;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-lg);
-            font-size: .875rem;
-            font-weight: 500;
-            transform: translateY(80px);
-            opacity: 0;
-            transition: all .35s cubic-bezier(.4, 0, .2, 1);
-            z-index: 2000;
-            pointer-events: none;
-        }
-        .toast.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        /* ── PRINT ── */
+        /* ============================================================
+           PRINT STYLES — KEY FIX ZONE
+           Strategy:
+           1. A print-mode class is added to <body> before window.print()
+              and removed in the afterprint event.
+           2. Only the ACTIVE print container is shown; everything else
+              gets display:none so no phantom pages appear.
+           3. The front sheet uses page-break-after:always to push the
+              back to page 2. The back sheet has page-break-after:auto
+              so no trailing blank third page is generated.
+           4. @page size is injected dynamically per mode.
+        ============================================================ */
         @media print {
-            header,
-            footer,
-            .toast,
-            .no-print,
-            .id-toolbar,
-            .duplex-banner,
-            .flip-indicator,
-            .photo-toolbar,
-            .photo-tabs,
-            .photo-hint,
-            .polaroid-hero,
-            .polaroid-toolbar {
-                display: none !important;
-            }
+            /* Hide absolutely everything first */
+            body > * { display: none !important; }
+
+            /* Then show only the correct print container */
+            body.print-id #id-print,
+            body.print-photos #photos,
+            body.print-polaroid #polaroid { display: block !important; }
+
+            /* Common resets */
+            header, footer, .toast,
+            .no-print, .id-toolbar, .duplex-banner, .flip-indicator,
+            .photo-toolbar, .photo-tabs, .photo-hint,
+            .polaroid-hero, .polaroid-toolbar { display: none !important; }
+
             body {
-                margin: 0 !important;
-                padding: 0 !important;
+                margin: 0; padding: 0;
                 background: white !important;
                 background-image: none !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
 
-            /* ID PRINT – fix blank pages */
-            #id-print {
-                display: block !important;
-            }
+            /* ---- ID PRINT ---- */
+            body.print-id #id-print { display: block !important; }
+
+            /* Hide the inactive layout */
+            body.print-id.mode-a6 .a4-only { display: none !important; }
+            body.print-id.mode-a4 .a6-only { display: none !important; }
+
+            /* Show correct layout */
+            body.print-id.mode-a6 .a6-only { display: block !important; }
+            body.print-id.mode-a4 .a4-only { display: block !important; }
+
             .id-app-container {
                 display: block !important;
-                padding: 0 !important;
-                margin: 0 !important;
+                padding: 0 !important; margin: 0 !important;
                 background: white !important;
                 background-image: none !important;
             }
+
             .id-layout-area {
                 display: block !important;
-                padding: 0 !important;
-                margin: 0 !important;
+                padding: 0 !important; margin: 0 !important;
                 gap: 0 !important;
             }
-            /* force containers to block so page-break works */
-            .a6-only,
-            .a4-only {
-                display: block !important;
-                margin: 0 !important;
-                padding: 0 !important;
-            }
-            body.mode-a6 .a6-only {
-                display: block !important;
-            }
-            body.mode-a6 .a4-only {
-                display: none !important;
-            }
-            body.mode-a4 .a4-only {
-                display: block !important;
-            }
-            body.mode-a4 .a6-only {
-                display: none !important;
-            }
+
+            /* Each sheet fills one printed page exactly */
             .id-sheet {
-                display: block !important;
                 box-shadow: none !important;
                 margin: 0 !important;
                 border: none !important;
                 border-radius: 0 !important;
-                page-break-inside: avoid !important;
-                page-break-after: auto !important;
+                page-break-inside: avoid;
+                break-inside: avoid;
+                overflow: hidden;
             }
-            /* A6: block with exact size */
-            body.mode-a6 .id-sheet {
+
+            /* A6 sheets: explicit page dimensions */
+            body.print-id.mode-a6 #a6-front,
+            body.print-id.mode-a6 #a6-back {
                 width: var(--a6-w) !important;
                 height: var(--a6-h) !important;
-                padding-top: var(--a6-v-gap) !important;
-                gap: var(--a6-v-gap) !important;
-                display: flex !important;
-                flex-direction: column !important;
-                align-items: center !important;
             }
-            /* A4: grid with exact size */
-            body.mode-a4 .id-sheet {
+
+            /* A4 sheets: explicit page dimensions */
+            body.print-id.mode-a4 #a4-front,
+            body.print-id.mode-a4 #a4-back {
                 width: var(--a4-w) !important;
                 height: var(--a4-h) !important;
-                padding: var(--a4-v-gap) var(--a4-h-gap) !important;
-                display: grid !important;
-                grid-template-columns: repeat(2, var(--card-w)) !important;
-                grid-template-rows: repeat(4, var(--card-h)) !important;
-                gap: var(--a4-v-gap) var(--a4-h-gap) !important;
-                justify-content: center !important;
-                align-content: center !important;
             }
-            /* front sheet: always page break after */
-            #a6-front,
-            #a4-front {
+
+            /* FRONT → force page break AFTER so back starts on page 2 */
+            #a6-front, #a4-front {
                 page-break-after: always !important;
-                page-break-before: auto !important;
+                break-after: page !important;
             }
-            /* back sheet: no extra blank page */
-            #a6-back,
-            #a4-back {
+
+            /* BACK → NO trailing page break (prevents blank page 3) */
+            #a6-back, #a4-back {
                 page-break-after: avoid !important;
-                page-break-before: auto !important;
+                break-after: avoid !important;
+                /* Also suppress any margin that could trigger extra page */
+                margin-bottom: 0 !important;
+                padding-bottom: 0 !important;
             }
-            /* hide labels in print */
-            .id-sheet-label {
-                display: none !important;
+
+            /* The wrapper around both sheets must not add space */
+            .a6-only, .a4-only {
+                display: block !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                gap: 0 !important;
+                /* Remove flex gap which can push content to next page */
+                flex-direction: column !important;
             }
+
+            /* Card slots — clean for print */
             .card-slot {
                 border: none !important;
                 background: transparent !important;
             }
 
-            /* Polaroid print */
-            body.viewing-polaroid #polaroid {
-                display: block !important;
-            }
-            body.viewing-polaroid .polaroid-a4-paper {
-                box-shadow: none !important;
-                margin: 0 !important;
-                width: 210mm !important;
-                height: 297mm !important;
-            }
-            body.viewing-polaroid .polaroid-image-area {
-                border: none !important;
-            }
-            body.viewing-polaroid .drop-zone-indicator,
-            body.viewing-polaroid .polaroid-clear-btn,
-            body.viewing-polaroid .cut-line {
-                display: none !important;
-            }
-            body.viewing-polaroid .polaroid-caption input::placeholder {
-                opacity: 0;
-            }
+            /* Hide labels */
+            .id-sheet-label { display: none !important; }
 
-            /* Photos print */
-            body.viewing-photos #photos {
-                display: block !important;
-            }
-            body.viewing-photos .photo-wrapper {
-                margin: 0 !important;
-                padding: 0 !important;
-                display: block !important;
+            /* ---- PHOTOS ---- */
+            body.print-photos #photos { display: block !important; }
+            body.print-photos .photo-wrapper {
+                margin: 0; padding: 0;
+                display: block;
                 background: white !important;
                 background-image: none !important;
             }
-            body.viewing-photos .photo-sheet {
-                box-shadow: none !important;
-                margin: 0 !important;
-                position: static !important;
+            body.print-photos .photo-sheet {
+                box-shadow: none;
+                margin: 0;
+                position: static;
             }
+
+            /* ---- POLAROID ---- */
+            body.print-polaroid #polaroid { display: block !important; }
+            body.print-polaroid .polaroid-a4-paper {
+                box-shadow: none;
+                margin: 0;
+                width: 210mm;
+                height: 297mm;
+            }
+            body.print-polaroid .polaroid-image-area { border: none !important; }
+            body.print-polaroid .drop-zone-indicator,
+            body.print-polaroid .polaroid-clear-btn,
+            body.print-polaroid .cut-line { display: none !important; }
+            body.print-polaroid .polaroid-caption input::placeholder { opacity: 0; }
         }
 
-        /* ── RESPONSIVE ── */
-        @media (max-width: 768px) {
-            .nav-btn {
-                padding: 7px 12px;
-                font-size: .8rem;
-            }
-            .logo span {
-                display: none;
-            }
-            .id-toolbar {
-                gap: 6px;
-                padding: 8px 10px;
-            }
-            .btn {
-                padding: 7px 12px;
-                font-size: .75rem;
-            }
-            .duplex-banner {
-                flex-direction: column;
-                text-align: center;
-                padding: 12px 16px;
-            }
-            .duplex-diagram {
-                flex-direction: row;
-            }
-            .photo-tabs {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 4px;
-            }
+        @media(max-width:768px){
+            .nav-btn{padding:7px 12px;font-size:.8rem}
+            .logo span{display:none}
+            .id-toolbar{gap:6px;padding:8px 10px}
+            .btn{padding:7px 12px;font-size:.75rem}
+            .duplex-banner{flex-direction:column;text-align:center;padding:12px 16px}
+            .duplex-diagram{flex-direction:row}
+            .photo-tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px}
         }
-        @media screen and (max-width: 900px) {
-            .polaroid-a4-paper {
-                transform: scale(.55);
-                transform-origin: top center;
-                margin-bottom: -120mm;
-            }
-        }
-        @media screen and (max-width: 600px) {
-            .polaroid-a4-paper {
-                transform: scale(.38);
-                transform-origin: top center;
-                margin-bottom: -180mm;
-            }
-            .a4-only .id-sheet {
-                transform: scale(.45);
-                transform-origin: top center;
-                margin-bottom: -140mm;
-            }
-        }
-        @media (prefers-reduced-motion: reduce) {
-            *,
-            *::before,
-            *::after {
-                animation-duration: .01ms !important;
-                transition-duration: .01ms !important;
-            }
-        }
+        @media screen and (max-width:900px){.polaroid-a4-paper{transform:scale(.55);transform-origin:top center;margin-bottom:-120mm}}
+        @media screen and (max-width:600px){.polaroid-a4-paper{transform:scale(.38);transform-origin:top center;margin-bottom:-180mm}.a4-only .id-sheet{transform:scale(.45);transform-origin:top center;margin-bottom:-140mm}}
+        @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
     </style>
 </head>
 <body class="mode-a6">
-
     <header>
         <div class="header-inner">
             <a href="#" class="logo">
@@ -1228,7 +360,6 @@
     </header>
 
     <main>
-
         <!-- ===== ID PRINT ===== -->
         <section id="id-print" class="tool-section active">
             <div class="id-app-container">
@@ -1279,8 +410,8 @@
                     <div class="a6-only">
                         <div class="id-sheet" id="a6-front">
                             <div class="id-sheet-label front-label"><span class="label-badge page-num">Page 1</span><span class="label-badge side front">FRONTS</span></div>
-                            <div class="card-slot" ondblclick="clearSlot(this)"><img /><span class="card-number">1</span><div class="placeholder-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Front 1</span></div></div>
-                            <div class="card-slot" ondblclick="clearSlot(this)"><img /><span class="card-number">2</span><div class="placeholder-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Front 2</span></div></div>
+                            <div class="card-slot" ondblclick="clearSlot(this)"><img><span class="card-number">1</span><div class="placeholder-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Front 1</span></div></div>
+                            <div class="card-slot" ondblclick="clearSlot(this)"><img><span class="card-number">2</span><div class="placeholder-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Front 2</span></div></div>
                         </div>
                         <div class="flip-indicator no-print">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
@@ -1288,22 +419,22 @@
                         </div>
                         <div class="id-sheet" id="a6-back">
                             <div class="id-sheet-label back-label"><span class="label-badge page-num">Page 2</span><span class="label-badge side back">BACKS</span></div>
-                            <div class="card-slot" ondblclick="clearSlot(this)"><img /><span class="card-number">1</span><div class="placeholder-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Back 1</span></div></div>
-                            <div class="card-slot" ondblclick="clearSlot(this)"><img /><span class="card-number">2</span><div class="placeholder-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Back 2</span></div></div>
+                            <div class="card-slot" ondblclick="clearSlot(this)"><img><span class="card-number">1</span><div class="placeholder-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Back 1</span></div></div>
+                            <div class="card-slot" ondblclick="clearSlot(this)"><img><span class="card-number">2</span><div class="placeholder-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Back 2</span></div></div>
                         </div>
                     </div>
                     <!-- A4 -->
                     <div class="a4-only">
                         <div class="id-sheet" id="a4-front">
                             <div class="id-sheet-label front-label"><span class="label-badge page-num">Page 1</span><span class="label-badge side front">FRONTS</span></div>
-                            <div class="card-slot" ondblclick="clearSlot(this)"><img /><span class="card-number">1</span><div class="placeholder-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Front 1</span></div></div>
-                            <div class="card-slot" ondblclick="clearSlot(this)"><img /><span class="card-number">2</span><div class="placeholder-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Front 2</span></div></div>
-                            <div class="card-slot" ondblclick="clearSlot(this)"><img /><span class="card-number">3</span><div class="placeholder-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Front 3</span></div></div>
-                            <div class="card-slot" ondblclick="clearSlot(this)"><img /><span class="card-number">4</span><div class="placeholder-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Front 4</span></div></div>
-                            <div class="card-slot" ondblclick="clearSlot(this)"><img /><span class="card-number">5</span><div class="placeholder-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Front 5</span></div></div>
-                            <div class="card-slot" ondblclick="clearSlot(this)"><img /><span class="card-number">6</span><div class="placeholder-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Front 6</span></div></div>
-                            <div class="card-slot" ondblclick="clearSlot(this)"><img /><span class="card-number">7</span><div class="placeholder-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Front 7</span></div></div>
-                            <div class="card-slot" ondblclick="clearSlot(this)"><img /><span class="card-number">8</span><div class="placeholder-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Front 8</span></div></div>
+                            <div class="card-slot" ondblclick="clearSlot(this)"><img><span class="card-number">1</span><div class="placeholder-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Front 1</span></div></div>
+                            <div class="card-slot" ondblclick="clearSlot(this)"><img><span class="card-number">2</span><div class="placeholder-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Front 2</span></div></div>
+                            <div class="card-slot" ondblclick="clearSlot(this)"><img><span class="card-number">3</span><div class="placeholder-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Front 3</span></div></div>
+                            <div class="card-slot" ondblclick="clearSlot(this)"><img><span class="card-number">4</span><div class="placeholder-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Front 4</span></div></div>
+                            <div class="card-slot" ondblclick="clearSlot(this)"><img><span class="card-number">5</span><div class="placeholder-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Front 5</span></div></div>
+                            <div class="card-slot" ondblclick="clearSlot(this)"><img><span class="card-number">6</span><div class="placeholder-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Front 6</span></div></div>
+                            <div class="card-slot" ondblclick="clearSlot(this)"><img><span class="card-number">7</span><div class="placeholder-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Front 7</span></div></div>
+                            <div class="card-slot" ondblclick="clearSlot(this)"><img><span class="card-number">8</span><div class="placeholder-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Front 8</span></div></div>
                         </div>
                         <div class="flip-indicator no-print">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
@@ -1311,21 +442,21 @@
                         </div>
                         <div class="id-sheet" id="a4-back">
                             <div class="id-sheet-label back-label"><span class="label-badge page-num">Page 2</span><span class="label-badge side back">BACKS</span></div>
-                            <div class="card-slot" ondblclick="clearSlot(this)"><img /><span class="card-number">1</span><div class="placeholder-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Back 1</span></div></div>
-                            <div class="card-slot" ondblclick="clearSlot(this)"><img /><span class="card-number">2</span><div class="placeholder-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Back 2</span></div></div>
-                            <div class="card-slot" ondblclick="clearSlot(this)"><img /><span class="card-number">3</span><div class="placeholder-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Back 3</span></div></div>
-                            <div class="card-slot" ondblclick="clearSlot(this)"><img /><span class="card-number">4</span><div class="placeholder-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Back 4</span></div></div>
-                            <div class="card-slot" ondblclick="clearSlot(this)"><img /><span class="card-number">5</span><div class="placeholder-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Back 5</span></div></div>
-                            <div class="card-slot" ondblclick="clearSlot(this)"><img /><span class="card-number">6</span><div class="placeholder-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Back 6</span></div></div>
-                            <div class="card-slot" ondblclick="clearSlot(this)"><img /><span class="card-number">7</span><div class="placeholder-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Back 7</span></div></div>
-                            <div class="card-slot" ondblclick="clearSlot(this)"><img /><span class="card-number">8</span><div class="placeholder-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Back 8</span></div></div>
+                            <div class="card-slot" ondblclick="clearSlot(this)"><img><span class="card-number">1</span><div class="placeholder-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Back 1</span></div></div>
+                            <div class="card-slot" ondblclick="clearSlot(this)"><img><span class="card-number">2</span><div class="placeholder-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Back 2</span></div></div>
+                            <div class="card-slot" ondblclick="clearSlot(this)"><img><span class="card-number">3</span><div class="placeholder-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Back 3</span></div></div>
+                            <div class="card-slot" ondblclick="clearSlot(this)"><img><span class="card-number">4</span><div class="placeholder-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Back 4</span></div></div>
+                            <div class="card-slot" ondblclick="clearSlot(this)"><img><span class="card-number">5</span><div class="placeholder-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Back 5</span></div></div>
+                            <div class="card-slot" ondblclick="clearSlot(this)"><img><span class="card-number">6</span><div class="placeholder-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Back 6</span></div></div>
+                            <div class="card-slot" ondblclick="clearSlot(this)"><img><span class="card-number">7</span><div class="placeholder-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Back 7</span></div></div>
+                            <div class="card-slot" ondblclick="clearSlot(this)"><img><span class="card-number">8</span><div class="placeholder-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Back 8</span></div></div>
                         </div>
                     </div>
                 </div>
             </div>
-            <input type="file" id="fileInput" hidden accept="image/*,application/pdf" />
-            <input type="file" id="multiFileInput" hidden multiple accept="image/*,application/pdf" />
-            <input type="file" id="fillInput" hidden accept="image/*,application/pdf" />
+            <input type="file" id="fileInput" hidden accept="image/*,application/pdf">
+            <input type="file" id="multiFileInput" hidden multiple accept="image/*,application/pdf">
+            <input type="file" id="fillInput" hidden accept="image/*,application/pdf">
         </section>
 
         <!-- ===== POLAROID ===== -->
@@ -1339,7 +470,7 @@
                 <button class="btn btn-ghost" onclick="polaroidClearAll()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>Clear All</button>
                 <button class="btn btn-ghost" onclick="polaroidBulkAdd()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Add Photos</button>
                 <button class="btn btn-ghost" onclick="polaroidRepeatImage()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Repeat One</button>
-                <button class="btn polaroid-btn-primary" onclick="window.print()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Print</button>
+                <button class="btn polaroid-btn-primary" onclick="printPolaroid()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Print</button>
             </div>
         </section>
 
@@ -1352,16 +483,16 @@
                     <button class="btn btn-danger" id="photo-clear">Clear</button>
                     <button class="btn btn-accent" id="photo-print"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Print</button>
                     <button class="btn btn-ghost" id="photo-download">Download PNG</button>
-                    <input id="photo-file" type="file" accept="image/*" multiple />
+                    <input id="photo-file" type="file" accept="image/*" multiple>
                 </div>
                 <div class="photo-tabs no-print">
-                    <button class="photo-tab active" data-sheet="photo-sheet-mm">35×45 mm</button>
-                    <button class="photo-tab" data-sheet="photo-sheet-inch">1.5×1.5 in</button>
+                    <button class="photo-tab active" data-sheet="photo-sheet-mm">35x45 mm</button>
+                    <button class="photo-tab" data-sheet="photo-sheet-inch">1.5x1.5 in</button>
                     <button class="photo-tab" data-sheet="photo-sheet-mixed">Mixed 4+4</button>
-                    <button class="photo-tab" data-sheet="photo-sheet-5r">5R 2×2 in</button>
-                    <button class="photo-tab" data-sheet="photo-sheet-5r-50x70">5R 50×70</button>
-                    <button class="photo-tab" data-sheet="photo-sheet-5r-50x60">5R 50×60</button>
-                    <button class="photo-tab" data-sheet="photo-sheet-4r-1_5x2">4R 1.5×2 in</button>
+                    <button class="photo-tab" data-sheet="photo-sheet-5r">5R 2x2 in</button>
+                    <button class="photo-tab" data-sheet="photo-sheet-5r-50x70">5R 50x70</button>
+                    <button class="photo-tab" data-sheet="photo-sheet-5r-50x60">5R 50x60</button>
+                    <button class="photo-tab" data-sheet="photo-sheet-4r-1_5x2">4R 1.5x2 in</button>
                     <button class="photo-tab" data-sheet="photo-sheet-a4-30">A4 30 Photos</button>
                 </div>
                 <div class="photo-hint no-print">Drag and drop photos onto the sheet. <b>Set "Scale" to 100% or "Actual size" in print dialog.</b></div>
@@ -1375,463 +506,410 @@
                 <div id="photo-sheet-a4-30" class="photo-sheet sheet-a4-30 hidden-photo" tabindex="0"><div class="photo-drop-mask"></div></div>
             </div>
         </section>
-
     </main>
 
     <footer><p>PrintStudio — Crafted for precise, hassle-free printing.</p></footer>
     <div id="toast" class="toast"></div>
 
     <script>
-        /* ===== INIT ===== */
-        document.addEventListener('DOMContentLoaded', function() {
-            initIDSlots();
-            polaroidInitGrid();
-            generateA430Slots();
-            setupPhotoListeners();
-            // ensure correct initial mode
-            setMode('a6');
+    /* ===== INIT ===== */
+    document.addEventListener('DOMContentLoaded', function() {
+        initIDSlots();
+        polaroidInitGrid();
+        generateA430Slots();
+        setupPhotoListeners();
+        // Clean up print classes if print is cancelled
+        window.addEventListener('afterprint', function() {
+            document.body.classList.remove('print-id', 'print-photos', 'print-polaroid');
+            if (_dynamicPrintStyle) { _dynamicPrintStyle.remove(); _dynamicPrintStyle = null; }
         });
+    });
 
-        /* ===== NAV ===== */
-        function switchTab(id) {
-            document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
-            var btns = document.querySelectorAll('.nav-btn');
-            for (var i = 0; i < btns.length; i++) {
-                if (btns[i].getAttribute('onclick').indexOf(id) !== -1) btns[i].classList.add('active');
-            }
-            document.querySelectorAll('.tool-section').forEach(function(s) { s.classList.remove('active'); });
-            document.getElementById(id).classList.add('active');
-            document.body.classList.remove('viewing-photos', 'viewing-polaroid', 'mode-a6', 'mode-a4');
-            if (id === 'photos') document.body.classList.add('viewing-photos');
-            else if (id === 'polaroid') document.body.classList.add('viewing-polaroid');
-            else if (id === 'id-print') setMode(currentMode || 'a6');
+    /* ===== NAV ===== */
+    var _activeTabId = 'id-print';
+
+    function switchTab(id) {
+        _activeTabId = id;
+        document.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.remove('active'); });
+        var btns = document.querySelectorAll('.nav-btn');
+        for (var i = 0; i < btns.length; i++) {
+            if (btns[i].getAttribute('onclick').indexOf(id) !== -1) btns[i].classList.add('active');
         }
+        document.querySelectorAll('.tool-section').forEach(function(s){ s.classList.remove('active'); });
+        document.getElementById(id).classList.add('active');
+        document.body.classList.remove('viewing-photos','viewing-polaroid','mode-a6','mode-a4');
+        if (id === 'photos') document.body.classList.add('viewing-photos');
+        else if (id === 'polaroid') document.body.classList.add('viewing-polaroid');
+        else if (id === 'id-print') setMode(currentMode || 'a6');
+    }
 
-        /* ===== HELPERS ===== */
-        function readFileAsUrl(file) {
-            return new Promise(function(resolve, reject) {
-                var r = new FileReader();
-                r.onload = function(e) { resolve(e.target.result); };
-                r.onerror = reject;
-                r.readAsDataURL(file);
-            });
-        }
+    /* ===== HELPERS ===== */
+    function readFileAsUrl(file) {
+        return new Promise(function(resolve, reject) {
+            var r = new FileReader();
+            r.onload = function(e) { resolve(e.target.result); };
+            r.onerror = reject;
+            r.readAsDataURL(file);
+        });
+    }
+    function showToast(msg) {
+        var t = document.getElementById('toast');
+        t.textContent = msg; t.classList.add('show');
+        clearTimeout(t._t);
+        t._t = setTimeout(function(){ t.classList.remove('show'); }, 2500);
+    }
 
-        function showToast(msg) {
-            var t = document.getElementById('toast');
-            t.textContent = msg;
-            t.classList.add('show');
-            clearTimeout(t._t);
-            t._t = setTimeout(function() { t.classList.remove('show'); }, 2500);
-        }
+    /* ================================================================
+       ID PRINT — DOUBLE SIDED
+       FIX: We use body.print-id class to isolate what renders at print
+       time. The front sheet gets page-break-after:always, the back gets
+       page-break-after:avoid so no phantom page 3 is generated.
+       The a6-only / a4-only wrapper is switched to display:block so the
+       flex gap between sheets doesn't push content to extra pages.
+    ================================================================ */
+    var currentMode = 'a6';
+    var activeSlot = null;
+    var fillSide = null;
+    var _dynamicPrintStyle = null;
 
-        /* ================================================================
-           ID PRINT — DOUBLE SIDED
-           Front → page-break-after: always
-           Back  → page-break-after: avoid (no blank trailing page)
-           @page size injected via JS
-        ================================================================ */
-        var currentMode = 'a6';
-        var activeSlot = null;
-        var fillSide = null;
-        var _dynamicPrintStyle = null;
+    function setMode(mode) {
+        currentMode = mode;
+        document.body.classList.remove('mode-a6','mode-a4');
+        document.body.classList.add('mode-' + mode);
+        document.getElementById('btn-mode-a6').classList.toggle('active', mode === 'a6');
+        document.getElementById('btn-mode-a4').classList.toggle('active', mode === 'a4');
+    }
 
-        function setMode(mode) {
-            currentMode = mode;
-            document.body.classList.remove('mode-a6', 'mode-a4');
-            document.body.classList.add('mode-' + mode);
-            document.getElementById('btn-mode-a6').classList.toggle('active', mode === 'a6');
-            document.getElementById('btn-mode-a4').classList.toggle('active', mode === 'a4');
-        }
+    function printIDCards() {
+        // Remove any stale injected style
+        if (_dynamicPrintStyle) { _dynamicPrintStyle.remove(); _dynamicPrintStyle = null; }
 
-        function printIDCards() {
-            if (_dynamicPrintStyle) _dynamicPrintStyle.remove();
-            _dynamicPrintStyle = document.createElement('style');
-            _dynamicPrintStyle.id = 'dynamic-print-page';
-            var size = currentMode === 'a6' ? 'A6' : 'A4';
-            _dynamicPrintStyle.textContent = '@media print { @page { size: ' + size + '; margin: 0; } }';
-            document.head.appendChild(_dynamicPrintStyle);
-            setTimeout(function() { window.print(); }, 150);
-        }
+        // Inject @page with correct paper size + zero margin
+        _dynamicPrintStyle = document.createElement('style');
+        _dynamicPrintStyle.id = 'dynamic-print-page';
+        var size = currentMode === 'a6' ? 'A6' : 'A4';
+        _dynamicPrintStyle.textContent = '@media print { @page { size: ' + size + '; margin: 0; } }';
+        document.head.appendChild(_dynamicPrintStyle);
 
-        function initIDSlots() {
-            var slots = document.querySelectorAll('.card-slot');
-            for (var i = 0; i < slots.length; i++) {
-                (function(slot) {
-                    slot.addEventListener('click', function() {
-                        activeSlot = slot;
-                        document.getElementById('fileInput').click();
-                    });
-                    slot.addEventListener('dragover', function(e) { e.preventDefault();
-                        e.stopPropagation();
-                        slot.classList.add('drag-over'); });
-                    slot.addEventListener('dragleave', function(e) { e.preventDefault();
-                        e.stopPropagation();
-                        slot.classList.remove('drag-over'); });
-                    slot.addEventListener('drop', function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        slot.classList.remove('drag-over');
-                        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) processFile(e.dataTransfer
-                            .files[0], slot);
-                    });
-                })(slots[i]);
-            }
-        }
+        // Tag body so CSS print rules know what to show
+        document.body.classList.remove('print-photos', 'print-polaroid');
+        document.body.classList.add('print-id');
 
-        function processFile(file, slot) {
-            if (!file || !slot) return;
-            if (file.type === 'application/pdf') {
-                if (typeof pdfjsLib === 'undefined') { showToast('PDF library not loaded.'); return; }
-                var pn = prompt('PDF page number?', '1');
-                if (!pn || isNaN(pn)) return;
-                file.arrayBuffer().then(function(buf) {
-                    return pdfjsLib.getDocument({ data: buf }).promise;
-                }).then(function(pdf) {
-                    return renderPdfPage(pdf, parseInt(pn));
-                }).then(function(url) {
-                    if (url) updateSlotImage(slot, url);
-                    else showToast('Could not render page.');
-                }).catch(function(err) { showToast('PDF error: ' + err.message); });
-            } else if (file.type.indexOf('image') === 0) {
-                readFileAsUrl(file).then(function(url) { updateSlotImage(slot, url); });
-            } else { showToast('Unsupported file type.'); }
-        }
+        setTimeout(function() { window.print(); }, 120);
+    }
 
-        function renderPdfPage(pdf, num) {
-            return pdf.getPage(num).then(function(page) {
-                var vp = page.getViewport({ scale: 2.0 });
-                var c = document.createElement('canvas');
-                c.width = vp.width;
-                c.height = vp.height;
-                return page.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise.then(function() {
-                    return c.toDataURL();
+    function printPolaroid() {
+        if (_dynamicPrintStyle) { _dynamicPrintStyle.remove(); _dynamicPrintStyle = null; }
+        _dynamicPrintStyle = document.createElement('style');
+        _dynamicPrintStyle.textContent = '@media print { @page { size: A4; margin: 0; } }';
+        document.head.appendChild(_dynamicPrintStyle);
+        document.body.classList.remove('print-id', 'print-photos');
+        document.body.classList.add('print-polaroid');
+        setTimeout(function() { window.print(); }, 120);
+    }
+
+    function initIDSlots() {
+        var slots = document.querySelectorAll('.card-slot');
+        for (var i = 0; i < slots.length; i++) {
+            (function(slot) {
+                slot.addEventListener('click', function() {
+                    activeSlot = slot;
+                    document.getElementById('fileInput').click();
                 });
-            }).catch(function() { return null; });
-        }
-
-        function updateSlotImage(slot, url) {
-            var img = slot.querySelector('img');
-            if (!img) return;
-            img.onload = function() { slot.classList.add('has-image');
-                img.className = ''; };
-            img.src = url;
-        }
-
-        function clearSlot(slot) {
-            var img = slot.querySelector('img');
-            if (img) { img.src = '';
-                img.className = ''; }
-            slot.classList.remove('has-image', 'fit-contain');
-        }
-
-        function clearCurrentSheet() {
-            var f = document.getElementById(currentMode + '-front');
-            var b = document.getElementById(currentMode + '-back');
-            if (f) f.querySelectorAll('.card-slot').forEach(clearSlot);
-            if (b) b.querySelectorAll('.card-slot').forEach(clearSlot);
-            showToast('Sheet cleared.');
-        }
-
-        function adjustImages(action) {
-            var sheets = [document.getElementById(currentMode + '-front'), document.getElementById(currentMode + '-back')];
-            sheets.forEach(function(sheet) {
-                if (!sheet) return;
-                sheet.querySelectorAll('.card-slot').forEach(function(slot) {
-                    var img = slot.querySelector('img');
-                    if (!img || !slot.classList.contains('has-image')) return;
-                    if (action === 'rotate') {
-                        if (img.classList.contains('rotate-90')) img.classList.replace('rotate-90', 'rotate-180');
-                        else if (img.classList.contains('rotate-180')) img.classList.replace('rotate-180',
-                        'rotate-270');
-                        else if (img.classList.contains('rotate-270')) img.classList.remove('rotate-270');
-                        else img.classList.add('rotate-90');
-                    } else if (action === 'fit') {
-                        slot.classList.toggle('fit-contain');
-                    }
+                slot.addEventListener('dragover', function(e) { e.preventDefault(); e.stopPropagation(); slot.classList.add('drag-over'); });
+                slot.addEventListener('dragleave', function(e) { e.preventDefault(); e.stopPropagation(); slot.classList.remove('drag-over'); });
+                slot.addEventListener('drop', function(e) {
+                    e.preventDefault(); e.stopPropagation(); slot.classList.remove('drag-over');
+                    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) processFile(e.dataTransfer.files[0], slot);
                 });
-            });
+            })(slots[i]);
         }
+    }
 
-        function triggerFill(side) { fillSide = side;
-            document.getElementById('fillInput').click(); }
+    function processFile(file, slot) {
+        if (!file || !slot) return;
+        if (file.type === 'application/pdf') {
+            if (typeof pdfjsLib === 'undefined') { showToast('PDF library not loaded.'); return; }
+            var pn = prompt('PDF page number?', '1');
+            if (!pn || isNaN(pn)) return;
+            file.arrayBuffer().then(function(buf) {
+                return pdfjsLib.getDocument({data: buf}).promise;
+            }).then(function(pdf) {
+                return renderPdfPage(pdf, parseInt(pn));
+            }).then(function(url) {
+                if (url) updateSlotImage(slot, url); else showToast('Could not render page.');
+            }).catch(function(err) { showToast('PDF error: ' + err.message); });
+        } else if (file.type.indexOf('image') === 0) {
+            readFileAsUrl(file).then(function(url) { updateSlotImage(slot, url); });
+        } else { showToast('Unsupported file type.'); }
+    }
 
-        document.getElementById('fileInput').addEventListener('change', function(e) {
-            if (e.target.files[0] && activeSlot) {
-                processFile(e.target.files[0], activeSlot);
-                e.target.value = '';
-                activeSlot = null;
-            }
-        });
+    function renderPdfPage(pdf, num) {
+        return pdf.getPage(num).then(function(page) {
+            var vp = page.getViewport({scale: 2.0});
+            var c = document.createElement('canvas');
+            c.width = vp.width; c.height = vp.height;
+            return page.render({canvasContext: c.getContext('2d'), viewport: vp}).promise.then(function() { return c.toDataURL(); });
+        }).catch(function() { return null; });
+    }
 
-        document.getElementById('multiFileInput').addEventListener('change', function(e) {
-            var files = Array.from(e.target.files);
-            if (!files.length) return;
-            var f = document.getElementById(currentMode + '-front');
-            var b = document.getElementById(currentMode + '-back');
-            var slots = [].concat(
-                f ? Array.from(f.querySelectorAll('.card-slot')) : [],
-                b ? Array.from(b.querySelectorAll('.card-slot')) : []
-            );
-            var empty = slots.filter(function(s) { return !s.classList.contains('has-image'); });
-            var idx = 0;
-            var chain = Promise.resolve();
-            files.forEach(function(file) {
-                if (idx >= empty.length) return;
-                chain = chain.then(function() { return processFile(file, empty[idx]); });
-                idx++;
-            });
-            chain.then(function() { showToast(idx + ' image(s) placed.'); });
-            e.target.value = '';
-        });
+    function updateSlotImage(slot, url) {
+        var img = slot.querySelector('img');
+        if (!img) return;
+        img.onload = function() { slot.classList.add('has-image'); img.className = ''; };
+        img.src = url;
+    }
 
-        document.getElementById('fillInput').addEventListener('change', function(e) {
-            var file = e.target.files[0];
-            if (!file || !fillSide) return;
-            var sheet = document.getElementById(currentMode + '-' + fillSide);
+    function clearSlot(slot) {
+        var img = slot.querySelector('img');
+        if (img) { img.src = ''; img.className = ''; }
+        slot.classList.remove('has-image','fit-contain');
+    }
+
+    function clearCurrentSheet() {
+        var f = document.getElementById(currentMode + '-front');
+        var b = document.getElementById(currentMode + '-back');
+        if (f) f.querySelectorAll('.card-slot').forEach(clearSlot);
+        if (b) b.querySelectorAll('.card-slot').forEach(clearSlot);
+        showToast('Sheet cleared.');
+    }
+
+    function adjustImages(action) {
+        var sheets = [document.getElementById(currentMode + '-front'), document.getElementById(currentMode + '-back')];
+        sheets.forEach(function(sheet) {
             if (!sheet) return;
-            var slots = sheet.querySelectorAll('.card-slot');
-            var chain = Promise.resolve();
-            slots.forEach(function(slot) { chain = chain.then(function() { return processFile(file, slot); }); });
-            chain.then(function() { showToast('Filled ' + slots.length + ' slots.'); });
-            e.target.value = '';
-            fillSide = null;
-        });
-
-        /* ================================================================
-           POLAROID
-        ================================================================ */
-        function polaroidInitGrid() {
-            var paper = document.getElementById('polaroid-a4-paper');
-            paper.innerHTML = '';
-            for (var i = 1; i < 3; i++) {
-                var vl = document.createElement('div');
-                vl.className = 'cut-line cut-line-v';
-                vl.style.left = (i / 3 * 100) + '%';
-                paper.appendChild(vl);
-                var hl = document.createElement('div');
-                hl.className = 'cut-line cut-line-h';
-                hl.style.top = (i / 3 * 100) + '%';
-                paper.appendChild(hl);
-            }
-            for (var j = 0; j < 9; j++) {
-                (function(idx) {
-                    var cell = document.createElement('div');
-                    cell.className = 'polaroid-cell';
-                    var area = document.createElement('div');
-                    area.className = 'polaroid-image-area';
-                    area.dataset.index = idx;
-                    area.innerHTML =
-                        '<div class="drop-zone-indicator"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><span>Drop photo</span></div><button class="polaroid-clear-btn" onclick="event.stopPropagation();polaroidClearCell(this.parentElement)">&times;</button>';
-                    var cap = document.createElement('div');
-                    cap.className = 'polaroid-caption';
-                    cap.innerHTML = '<input type="text" placeholder="Write something..." maxlength="40">';
-                    cell.appendChild(area);
-                    cell.appendChild(cap);
-                    paper.appendChild(cell);
-
-                    area.addEventListener('click', function() {
-                        if (area.classList.contains('has-image')) return;
-                        var inp = document.createElement('input');
-                        inp.type = 'file';
-                        inp.accept = 'image/*';
-                        inp.onchange = function(ev) { if (ev.target.files[0]) readFileAsUrl(ev.target
-                                .files[0]).then(function(u) { polaroidSetImage(area, u); }); };
-                        inp.click();
-                    });
-                    area.addEventListener('dragover', function(e) { e.preventDefault();
-                        area.classList.add('drag-over'); });
-                    area.addEventListener('dragleave', function() { area.classList.remove('drag-over'); });
-                    area.addEventListener('drop', function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        area.classList.remove('drag-over');
-                        if (e.dataTransfer.files[0]) readFileAsUrl(e.dataTransfer.files[0]).then(function(
-                        u) { polaroidSetImage(area, u); });
-                    });
-                })(j);
-            }
-        }
-
-        function polaroidSetImage(area, url) {
-            var old = area.querySelector('img');
-            if (old) old.remove();
-            var img = document.createElement('img');
-            img.src = url;
-            area.appendChild(img);
-            area.classList.add('has-image');
-        }
-
-        function polaroidClearCell(area) { var img = area.querySelector('img'); if (img) img.remove();
-            area.classList.remove('has-image'); }
-
-        function polaroidClearAll() {
-            document.querySelectorAll('.polaroid-image-area').forEach(polaroidClearCell);
-            document.querySelectorAll('.polaroid-caption input').forEach(function(i) { i.value = ''; });
-            showToast('All polaroids cleared.');
-        }
-
-        function polaroidBulkAdd() {
-            var inp = document.createElement('input');
-            inp.type = 'file';
-            inp.accept = 'image/*';
-            inp.multiple = true;
-            inp.onchange = function(e) {
-                var files = Array.from(e.target.files);
-                if (!files.length) return;
-                var empty = Array.from(document.querySelectorAll('.polaroid-image-area')).filter(function(a) {
-                    return !a.classList.contains('has-image');
-                });
-                var chain = Promise.resolve();
-                var n = 0;
-                for (var i = 0; i < files.length && i < empty.length; i++) {
-                    (function(f, a) {
-                        chain = chain.then(function() { return readFileAsUrl(f).then(function(u) {
-                                polaroidSetImage(a, u);
-                            }); });
-                    })(files[i], empty[i]);
-                    n++;
+            sheet.querySelectorAll('.card-slot').forEach(function(slot) {
+                var img = slot.querySelector('img');
+                if (!img || !slot.classList.contains('has-image')) return;
+                if (action === 'rotate') {
+                    if (img.classList.contains('rotate-90')) img.classList.replace('rotate-90','rotate-180');
+                    else if (img.classList.contains('rotate-180')) img.classList.replace('rotate-180','rotate-270');
+                    else if (img.classList.contains('rotate-270')) img.classList.remove('rotate-270');
+                    else img.classList.add('rotate-90');
+                } else if (action === 'fit') {
+                    slot.classList.toggle('fit-contain');
                 }
-                chain.then(function() { showToast(n + ' photo(s) added.'); });
-            };
-            inp.click();
-        }
+            });
+        });
+    }
 
-        function polaroidRepeatImage() {
-            var inp = document.createElement('input');
-            inp.type = 'file';
-            inp.accept = 'image/*';
-            inp.onchange = function(e) {
-                if (!e.target.files[0]) return;
-                readFileAsUrl(e.target.files[0]).then(function(url) {
-                    document.querySelectorAll('.polaroid-image-area').forEach(function(a) { polaroidSetImage(
-                            a, url); });
-                    showToast('Image repeated to all cells.');
+    function triggerFill(side) { fillSide = side; document.getElementById('fillInput').click(); }
+
+    document.getElementById('fileInput').addEventListener('change', function(e) {
+        if (e.target.files[0] && activeSlot) {
+            processFile(e.target.files[0], activeSlot);
+            e.target.value = ''; activeSlot = null;
+        }
+    });
+
+    document.getElementById('multiFileInput').addEventListener('change', function(e) {
+        var files = Array.from(e.target.files);
+        if (!files.length) return;
+        var f = document.getElementById(currentMode + '-front');
+        var b = document.getElementById(currentMode + '-back');
+        var slots = [].concat(
+            f ? Array.from(f.querySelectorAll('.card-slot')) : [],
+            b ? Array.from(b.querySelectorAll('.card-slot')) : []
+        );
+        var empty = slots.filter(function(s){ return !s.classList.contains('has-image'); });
+        var idx = 0;
+        var chain = Promise.resolve();
+        files.forEach(function(file) {
+            if (idx >= empty.length) return;
+            chain = chain.then(function() { return processFile(file, empty[idx]); });
+            idx++;
+        });
+        chain.then(function() { showToast(idx + ' image(s) placed.'); });
+        e.target.value = '';
+    });
+
+    document.getElementById('fillInput').addEventListener('change', function(e) {
+        var file = e.target.files[0];
+        if (!file || !fillSide) return;
+        var sheet = document.getElementById(currentMode + '-' + fillSide);
+        if (!sheet) return;
+        var slots = sheet.querySelectorAll('.card-slot');
+        var chain = Promise.resolve();
+        slots.forEach(function(slot) { chain = chain.then(function(){ return processFile(file, slot); }); });
+        chain.then(function() { showToast('Filled ' + slots.length + ' slots.'); });
+        e.target.value = ''; fillSide = null;
+    });
+
+    /* ================================================================
+       POLAROID
+    ================================================================ */
+    function polaroidInitGrid() {
+        var paper = document.getElementById('polaroid-a4-paper');
+        paper.innerHTML = '';
+        for (var i = 1; i < 3; i++) {
+            var vl = document.createElement('div'); vl.className = 'cut-line cut-line-v'; vl.style.left = (i/3*100)+'%'; paper.appendChild(vl);
+            var hl = document.createElement('div'); hl.className = 'cut-line cut-line-h'; hl.style.top = (i/3*100)+'%'; paper.appendChild(hl);
+        }
+        for (var j = 0; j < 9; j++) {
+            (function(idx) {
+                var cell = document.createElement('div'); cell.className = 'polaroid-cell';
+                var area = document.createElement('div'); area.className = 'polaroid-image-area'; area.dataset.index = idx;
+                area.innerHTML = '<div class="drop-zone-indicator"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><span>Drop photo</span></div><button class="polaroid-clear-btn" onclick="event.stopPropagation();polaroidClearCell(this.parentElement)">&times;</button>';
+                var cap = document.createElement('div'); cap.className = 'polaroid-caption';
+                cap.innerHTML = '<input type="text" placeholder="Write something..." maxlength="40">';
+                cell.appendChild(area); cell.appendChild(cap); paper.appendChild(cell);
+
+                area.addEventListener('click', function() {
+                    if (area.classList.contains('has-image')) return;
+                    var inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*';
+                    inp.onchange = function(ev) { if (ev.target.files[0]) readFileAsUrl(ev.target.files[0]).then(function(u){ polaroidSetImage(area, u); }); };
+                    inp.click();
                 });
-            };
-            inp.click();
+                area.addEventListener('dragover', function(e){ e.preventDefault(); area.classList.add('drag-over'); });
+                area.addEventListener('dragleave', function(){ area.classList.remove('drag-over'); });
+                area.addEventListener('drop', function(e){
+                    e.preventDefault(); e.stopPropagation(); area.classList.remove('drag-over');
+                    if (e.dataTransfer.files[0]) readFileAsUrl(e.dataTransfer.files[0]).then(function(u){ polaroidSetImage(area, u); });
+                });
+            })(j);
         }
-
-        /* ================================================================
-           PHOTOS
-        ================================================================ */
-        var currentPhotoSheetId = 'photo-sheet-mm';
-
-        function generateA430Slots() {
-            var sheet = document.getElementById('photo-sheet-a4-30');
-            if (!sheet) return;
-            for (var i = 0; i < 30; i++) { var d = document.createElement('div');
-                d.className = 'photo-slot empty';
-                sheet.appendChild(d); }
-        }
-
-        function getActivePhotoSheet() { return document.getElementById(currentPhotoSheetId); }
-
-        function fillPhotoSlots(files) {
-            var sheet = getActivePhotoSheet();
-            if (!sheet) return;
-            var slots = sheet.querySelectorAll('.photo-slot.empty');
-            var placed = 0;
-            var chain = Promise.resolve();
-            for (var i = 0; i < files.length && i < slots.length; i++) {
-                (function(slot, file) {
-                    chain = chain.then(function() {
-                        return readFileAsUrl(file).then(function(url) {
-                            slot.classList.remove('empty');
-                            var old = slot.querySelector('img');
-                            if (old) old.remove();
-                            var img = document.createElement('img');
-                            img.src = url;
-                            slot.appendChild(img);
-                        });
-                    });
-                })(slots[i], files[i]);
-                placed++;
+    }
+    function polaroidSetImage(area, url) {
+        var old = area.querySelector('img'); if (old) old.remove();
+        var img = document.createElement('img'); img.src = url; area.appendChild(img); area.classList.add('has-image');
+    }
+    function polaroidClearCell(area) { var img = area.querySelector('img'); if (img) img.remove(); area.classList.remove('has-image'); }
+    function polaroidClearAll() {
+        document.querySelectorAll('.polaroid-image-area').forEach(polaroidClearCell);
+        document.querySelectorAll('.polaroid-caption input').forEach(function(i){ i.value = ''; });
+        showToast('All polaroids cleared.');
+    }
+    function polaroidBulkAdd() {
+        var inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*'; inp.multiple = true;
+        inp.onchange = function(e) {
+            var files = Array.from(e.target.files); if (!files.length) return;
+            var empty = Array.from(document.querySelectorAll('.polaroid-image-area')).filter(function(a){ return !a.classList.contains('has-image'); });
+            var chain = Promise.resolve(); var n = 0;
+            for (var i = 0; i < files.length && i < empty.length; i++) {
+                (function(f, a) { chain = chain.then(function(){ return readFileAsUrl(f).then(function(u){ polaroidSetImage(a, u); }); }); })(files[i], empty[i]);
+                n++;
             }
-            chain.then(function() { if (placed > 0) showToast(placed + ' photo(s) placed.'); });
-        }
+            chain.then(function(){ showToast(n + ' photo(s) added.'); });
+        };
+        inp.click();
+    }
+    function polaroidRepeatImage() {
+        var inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*';
+        inp.onchange = function(e) {
+            if (!e.target.files[0]) return;
+            readFileAsUrl(e.target.files[0]).then(function(url) {
+                document.querySelectorAll('.polaroid-image-area').forEach(function(a){ polaroidSetImage(a, url); });
+                showToast('Image repeated to all cells.');
+            });
+        };
+        inp.click();
+    }
 
-        function setupPhotoListeners() {
-            document.querySelectorAll('.photo-tab').forEach(function(tab) {
-                tab.addEventListener('click', function() {
-                    document.querySelectorAll('.photo-tab').forEach(function(t) { t.classList.remove(
-                            'active'); });
-                    tab.classList.add('active');
-                    currentPhotoSheetId = tab.dataset.sheet;
-                    document.querySelectorAll('.photo-sheet').forEach(function(s) { s.classList.add(
-                            'hidden-photo'); });
-                    document.getElementById(currentPhotoSheetId).classList.remove('hidden-photo');
+    /* ================================================================
+       PHOTOS
+    ================================================================ */
+    var currentPhotoSheetId = 'photo-sheet-mm';
+
+    function generateA430Slots() {
+        var sheet = document.getElementById('photo-sheet-a4-30');
+        if (!sheet) return;
+        for (var i = 0; i < 30; i++) { var d = document.createElement('div'); d.className = 'photo-slot empty'; sheet.appendChild(d); }
+    }
+
+    function getActivePhotoSheet() { return document.getElementById(currentPhotoSheetId); }
+
+    function fillPhotoSlots(files) {
+        var sheet = getActivePhotoSheet(); if (!sheet) return;
+        var slots = sheet.querySelectorAll('.photo-slot.empty');
+        var placed = 0; var chain = Promise.resolve();
+        for (var i = 0; i < files.length && i < slots.length; i++) {
+            (function(slot, file) {
+                chain = chain.then(function() {
+                    return readFileAsUrl(file).then(function(url) {
+                        slot.classList.remove('empty');
+                        var old = slot.querySelector('img'); if (old) old.remove();
+                        var img = document.createElement('img'); img.src = url; slot.appendChild(img);
+                    });
                 });
-            });
-            document.getElementById('photo-pick').addEventListener('click', function() { document.getElementById(
-                    'photo-file').click(); });
-            document.getElementById('photo-file').addEventListener('change', function(e) {
-                var files = Array.from(e.target.files);
-                if (files.length) fillPhotoSlots(files);
-                e.target.value = '';
-            });
-            document.getElementById('photo-repeat').addEventListener('click', function() {
-                var sheet = getActivePhotoSheet();
-                if (!sheet) return;
-                var first = sheet.querySelector('.photo-slot:not(.empty) img');
-                if (!first) { showToast('No photo to repeat.'); return; }
-                var src = first.src;
-                sheet.querySelectorAll('.photo-slot').forEach(function(slot) {
-                    slot.classList.remove('empty');
-                    var old = slot.querySelector('img');
-                    if (old) old.remove();
-                    var img = document.createElement('img');
-                    img.src = src;
-                    slot.appendChild(img);
-                });
-                showToast('Repeated to all slots.');
-            });
-            document.getElementById('photo-clear').addEventListener('click', function() {
-                var sheet = getActivePhotoSheet();
-                if (!sheet) return;
-                sheet.querySelectorAll('.photo-slot').forEach(function(slot) {
-                    slot.classList.add('empty');
-                    var img = slot.querySelector('img');
-                    if (img) img.remove();
-                });
-                showToast('Sheet cleared.');
-            });
-            document.getElementById('photo-print').addEventListener('click', function() { window.print(); });
-            document.getElementById('photo-download').addEventListener('click', function() {
-                var sheet = getActivePhotoSheet();
-                if (!sheet) return;
-                showToast('Generating image...');
-                html2canvas(sheet, { scale: 2, useCORS: true, backgroundColor: '#ffffff' }).then(function(
-                canvas) {
-                    var link = document.createElement('a');
-                    link.download = 'printstudio-photos.png';
-                    link.href = canvas.toDataURL('image/png');
-                    link.click();
-                    showToast('Image downloaded.');
-                }).catch(function(err) { showToast('Download failed: ' + err.message); });
-            });
-            document.querySelectorAll('.photo-sheet').forEach(function(sheet) {
-                sheet.addEventListener('dragover', function(e) { e.preventDefault();
-                    sheet.classList.add('drag'); });
-                sheet.addEventListener('dragleave', function(e) { if (!sheet.contains(e.relatedTarget)) sheet
-                        .classList.remove('drag'); });
-                sheet.addEventListener('drop', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    sheet.classList.remove('drag');
-                    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-                        currentPhotoSheetId = sheet.id;
-                        document.querySelectorAll('.photo-tab').forEach(function(t) { t.classList.toggle(
-                                'active', t.dataset.sheet === sheet.id); });
-                        document.querySelectorAll('.photo-sheet').forEach(function(s) { s.classList.add(
-                                'hidden-photo'); });
-                        sheet.classList.remove('hidden-photo');
-                        fillPhotoSlots(Array.from(e.dataTransfer.files));
-                    }
-                });
-            });
+            })(slots[i], files[i]);
+            placed++;
         }
+        chain.then(function(){ if (placed > 0) showToast(placed + ' photo(s) placed.'); });
+    }
+
+    function setupPhotoListeners() {
+        document.querySelectorAll('.photo-tab').forEach(function(tab) {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.photo-tab').forEach(function(t){ t.classList.remove('active'); });
+                tab.classList.add('active');
+                currentPhotoSheetId = tab.dataset.sheet;
+                document.querySelectorAll('.photo-sheet').forEach(function(s){ s.classList.add('hidden-photo'); });
+                document.getElementById(currentPhotoSheetId).classList.remove('hidden-photo');
+            });
+        });
+        document.getElementById('photo-pick').addEventListener('click', function() { document.getElementById('photo-file').click(); });
+        document.getElementById('photo-file').addEventListener('change', function(e) {
+            var files = Array.from(e.target.files);
+            if (files.length) fillPhotoSlots(files);
+            e.target.value = '';
+        });
+        document.getElementById('photo-repeat').addEventListener('click', function() {
+            var sheet = getActivePhotoSheet(); if (!sheet) return;
+            var first = sheet.querySelector('.photo-slot:not(.empty) img');
+            if (!first) { showToast('No photo to repeat.'); return; }
+            var src = first.src;
+            sheet.querySelectorAll('.photo-slot').forEach(function(slot) {
+                slot.classList.remove('empty');
+                var old = slot.querySelector('img'); if (old) old.remove();
+                var img = document.createElement('img'); img.src = src; slot.appendChild(img);
+            });
+            showToast('Repeated to all slots.');
+        });
+        document.getElementById('photo-clear').addEventListener('click', function() {
+            var sheet = getActivePhotoSheet(); if (!sheet) return;
+            sheet.querySelectorAll('.photo-slot').forEach(function(slot) {
+                slot.classList.add('empty');
+                var img = slot.querySelector('img'); if (img) img.remove();
+            });
+            showToast('Sheet cleared.');
+        });
+        document.getElementById('photo-print').addEventListener('click', function() {
+            if (_dynamicPrintStyle) { _dynamicPrintStyle.remove(); _dynamicPrintStyle = null; }
+            // Detect A4 sheet
+            var isA4 = currentPhotoSheetId === 'photo-sheet-a4-30';
+            _dynamicPrintStyle = document.createElement('style');
+            _dynamicPrintStyle.textContent = '@media print { @page { size: ' + (isA4 ? 'A4' : '5R') + '; margin: 0; } }';
+            document.head.appendChild(_dynamicPrintStyle);
+            document.body.classList.remove('print-id', 'print-polaroid');
+            document.body.classList.add('print-photos');
+            setTimeout(function() { window.print(); }, 120);
+        });
+        document.getElementById('photo-download').addEventListener('click', function() {
+            var sheet = getActivePhotoSheet(); if (!sheet) return;
+            showToast('Generating image...');
+            html2canvas(sheet, {scale:2, useCORS:true, backgroundColor:'#ffffff'}).then(function(canvas) {
+                var link = document.createElement('a');
+                link.download = 'printstudio-photos.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                showToast('Image downloaded.');
+            }).catch(function(err){ showToast('Download failed: ' + err.message); });
+        });
+        document.querySelectorAll('.photo-sheet').forEach(function(sheet) {
+            sheet.addEventListener('dragover', function(e) { e.preventDefault(); sheet.classList.add('drag'); });
+            sheet.addEventListener('dragleave', function(e) { if (!sheet.contains(e.relatedTarget)) sheet.classList.remove('drag'); });
+            sheet.addEventListener('drop', function(e) {
+                e.preventDefault(); e.stopPropagation(); sheet.classList.remove('drag');
+                if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                    currentPhotoSheetId = sheet.id;
+                    document.querySelectorAll('.photo-tab').forEach(function(t){ t.classList.toggle('active', t.dataset.sheet === sheet.id); });
+                    document.querySelectorAll('.photo-sheet').forEach(function(s){ s.classList.add('hidden-photo'); });
+                    sheet.classList.remove('hidden-photo');
+                    fillPhotoSlots(Array.from(e.dataTransfer.files));
+                }
+            });
+        });
+    }
     </script>
-
 </body>
 </html>
