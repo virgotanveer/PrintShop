@@ -846,9 +846,8 @@
         .photo-hint b {
             color: var(--warn);
         }
+        /* Photo sheets – sizes fixed */
         .photo-sheet {
-            width: var(--sheet-w, 127mm);
-            height: var(--sheet-h, 177.8mm);
             background: #fff;
             box-shadow: var(--shadow-lg);
             display: grid;
@@ -857,61 +856,78 @@
             gap: 2mm;
             position: relative;
             user-select: none;
-            padding: 4mm;
+            padding: 3mm;
             box-sizing: border-box;
+            margin: 0 auto;
         }
+        /* 4R sheets: 4×6 inch */
         .sheet-mm {
+            width: 4in;
+            height: 6in;
             --photo-w: 45mm;
             --photo-h: 35mm;
             grid-template-columns: repeat(2, var(--photo-w));
             grid-template-rows: repeat(3, var(--photo-h));
         }
         .sheet-inch {
+            width: 4in;
+            height: 6in;
             --photo-w: 1.5in;
             --photo-h: 1.5in;
             grid-template-columns: repeat(2, var(--photo-w));
             grid-template-rows: repeat(3, var(--photo-h));
         }
+        .sheet-mixed {
+            width: 4in;
+            height: 6in;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3mm;
+            justify-content: center;
+            padding: 3mm;
+        }
+        .sheet-4r-1_5x2 {
+            width: 4in;
+            height: 6in;
+            --photo-w: 1.5in;
+            --photo-h: 2in;
+            grid-template-columns: repeat(2, var(--photo-w));
+            grid-template-rows: repeat(2, var(--photo-h));
+        }
+        /* 5R sheets: 5×7 inch */
         .sheet-5r {
+            width: 5in;
+            height: 7in;
             --photo-w: 2in;
             --photo-h: 2in;
             grid-template-columns: repeat(2, var(--photo-w));
             grid-template-rows: repeat(3, var(--photo-h));
         }
         .sheet-5r-50x70 {
+            width: 5in;
+            height: 7in;
             --photo-w: 50mm;
             --photo-h: 70mm;
             grid-template-columns: repeat(2, var(--photo-w));
             grid-template-rows: repeat(2, var(--photo-h));
         }
-        .sheet-4r-1_5x2 {
-            --photo-w: 1.5in;
-            --photo-h: 2in;
-            grid-template-columns: repeat(2, var(--photo-w));
-            grid-template-rows: repeat(2, var(--photo-h));
-        }
         .sheet-5r-50x60 {
-            --sheet-w: 127mm;
-            --sheet-h: 177.8mm;
+            width: 5in;
+            height: 7in;
             --photo-w: 50mm;
             --photo-h: 60mm;
             grid-template-columns: repeat(2, var(--photo-w));
             grid-template-rows: repeat(2, var(--photo-h));
         }
+        /* A4 sheet */
         .sheet-a4-30 {
-            --sheet-w: 210mm;
-            --sheet-h: 297mm;
+            width: 210mm;
+            height: 297mm;
             --photo-w: 35mm;
             --photo-h: 45mm;
             grid-template-columns: repeat(5, var(--photo-w));
             grid-template-rows: repeat(6, var(--photo-h));
-        }
-        .sheet-mixed {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4mm;
-            justify-content: center;
         }
         .photo-group {
             display: grid;
@@ -1023,7 +1039,7 @@
                 print-color-adjust: exact;
             }
 
-            /* ID PRINT – fix blank pages */
+            /* ID PRINT */
             #id-print {
                 display: block !important;
             }
@@ -1105,7 +1121,7 @@
                 background: transparent !important;
             }
 
-            /* ── POLAROID PRINT ── */
+            /* ── POLAROID PRINT – only the A4 sheet, no empty pages ── */
             body.viewing-polaroid #polaroid {
                 display: block !important;
             }
@@ -1114,6 +1130,9 @@
                 margin: 0 !important;
                 width: 210mm !important;
                 height: 297mm !important;
+                display: grid !important;
+                page-break-after: avoid !important;
+                page-break-inside: avoid !important;
             }
             body.viewing-polaroid .polaroid-image-area {
                 border: none !important;
@@ -1125,6 +1144,11 @@
             }
             body.viewing-polaroid .polaroid-caption input::placeholder {
                 opacity: 0;
+            }
+            /* Hide any extra generated elements */
+            body.viewing-polaroid .polaroid-hero,
+            body.viewing-polaroid .polaroid-toolbar {
+                display: none !important;
             }
 
             /* ── PHOTO PRINT ── */
@@ -1138,7 +1162,6 @@
                 background: white !important;
                 background-image: none !important;
             }
-            /* hide all sheets, then show the active one */
             body.viewing-photos .photo-sheet {
                 display: none !important;
                 box-shadow: none !important;
@@ -1152,11 +1175,9 @@
             body.viewing-photos .photo-sheet.active-print-sheet {
                 display: grid !important;
             }
-            /* For mixed layout which uses flex */
             body.viewing-photos .photo-sheet.sheet-mixed.active-print-sheet {
                 display: flex !important;
             }
-            /* Ensure photos fill slots at exact size */
             body.viewing-photos .photo-slot {
                 border: none !important;
                 background: white !important;
@@ -1175,20 +1196,21 @@
             body.viewing-photos .photo-slot.empty {
                 background: white !important;
             }
-            /* page size hints */
-            body.viewing-photos .sheet-mm,
-            body.viewing-photos .sheet-inch,
-            body.viewing-photos .sheet-mixed,
-            body.viewing-photos .sheet-4r-1_5x2 {
-                --print-paper: 4R;
+
+            /* Page size mapping */
+            body.viewing-photos .sheet-mm.active-print-sheet,
+            body.viewing-photos .sheet-inch.active-print-sheet,
+            body.viewing-photos .sheet-mixed.active-print-sheet,
+            body.viewing-photos .sheet-4r-1_5x2.active-print-sheet {
+                page: 4R;
             }
-            body.viewing-photos .sheet-5r,
-            body.viewing-photos .sheet-5r-50x60,
-            body.viewing-photos .sheet-5r-50x70 {
-                --print-paper: 5R;
+            body.viewing-photos .sheet-5r.active-print-sheet,
+            body.viewing-photos .sheet-5r-50x60.active-print-sheet,
+            body.viewing-photos .sheet-5r-50x70.active-print-sheet {
+                page: 5R;
             }
-            body.viewing-photos .sheet-a4-30 {
-                --print-paper: A4;
+            body.viewing-photos .sheet-a4-30.active-print-sheet {
+                page: A4;
             }
             @page 4R {
                 size: 4in 6in;
@@ -1201,31 +1223,6 @@
             @page A4 {
                 size: A4;
                 margin: 0;
-            }
-            /* Apply page size based on active sheet using a pseudo-selector trick */
-            body.viewing-photos .sheet-mm.active-print-sheet {
-                page: 4R;
-            }
-            body.viewing-photos .sheet-inch.active-print-sheet {
-                page: 4R;
-            }
-            body.viewing-photos .sheet-mixed.active-print-sheet {
-                page: 4R;
-            }
-            body.viewing-photos .sheet-4r-1_5x2.active-print-sheet {
-                page: 4R;
-            }
-            body.viewing-photos .sheet-5r.active-print-sheet {
-                page: 5R;
-            }
-            body.viewing-photos .sheet-5r-50x60.active-print-sheet {
-                page: 5R;
-            }
-            body.viewing-photos .sheet-5r-50x70.active-print-sheet {
-                page: 5R;
-            }
-            body.viewing-photos .sheet-a4-30.active-print-sheet {
-                page: A4;
             }
         }
 
@@ -1259,6 +1256,11 @@
                 grid-template-columns: 1fr 1fr;
                 gap: 4px;
             }
+            .photo-sheet {
+                transform: scale(0.7);
+                transform-origin: top center;
+                margin-bottom: -40mm;
+            }
         }
         @media screen and (max-width: 900px) {
             .polaroid-a4-paper {
@@ -1277,6 +1279,11 @@
                 transform: scale(.45);
                 transform-origin: top center;
                 margin-bottom: -140mm;
+            }
+            .photo-sheet {
+                transform: scale(0.5);
+                transform-origin: top center;
+                margin-bottom: -60mm;
             }
         }
         @media (prefers-reduced-motion: reduce) {
@@ -1482,6 +1489,14 @@
             if (id === 'photos') document.body.classList.add('viewing-photos');
             else if (id === 'polaroid') document.body.classList.add('viewing-polaroid');
             else if (id === 'id-print') setMode(currentMode || 'a6');
+            if (id === 'polaroid') {
+                // ensure only one page in print
+                setTimeout(function() {
+                    document.querySelectorAll('.polaroid-a4-paper').forEach(function(el) {
+                        el.style.display = 'grid';
+                    });
+                }, 50);
+            }
         }
 
         /* ===== HELPERS ===== */
@@ -1725,6 +1740,8 @@
                     });
                 })(j);
             }
+            // ensure print shows only one page
+            paper.style.display = 'grid';
         }
 
         function polaroidSetImage(area, url) {
@@ -1787,7 +1804,7 @@
         }
 
         /* ================================================================
-           PHOTOS — with print fix
+           PHOTOS — fixed sheet sizes (4R / 5R / A4)
         ================================================================ */
         var currentPhotoSheetId = 'photo-sheet-mm';
 
@@ -1826,7 +1843,6 @@
         }
 
         function updateActivePrintSheet() {
-            // Remove active class from all sheets, then add to the active one
             document.querySelectorAll('.photo-sheet').forEach(function(s) {
                 s.classList.remove('active-print-sheet');
             });
@@ -1941,16 +1957,20 @@
                 });
             });
 
-            // Initial active sheet
             updateActivePrintSheet();
         }
 
-        // Override switchTab to reapply active-print-sheet when switching to photos
         var origSwitchTab = switchTab;
         switchTab = function(id) {
             origSwitchTab(id);
             if (id === 'photos') {
                 setTimeout(updateActivePrintSheet, 50);
+            }
+            if (id === 'polaroid') {
+                setTimeout(function() {
+                    var p = document.getElementById('polaroid-a4-paper');
+                    if (p) p.style.display = 'grid';
+                }, 50);
             }
         };
     </script>
