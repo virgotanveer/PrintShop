@@ -720,6 +720,10 @@
         }
         .polaroid-caption input::placeholder {
             color: #e0ddd8;
+            opacity: 1;
+        }
+        .polaroid-caption input:placeholder-shown {
+            color: transparent;
         }
         .drop-zone-indicator {
             position: absolute;
@@ -1218,7 +1222,7 @@
                 background: transparent !important;
             }
 
-            /* ── POLAROID – fully visible grid ── */
+            /* ── POLAROID – fully visible grid, NO placeholder text ── */
             body.viewing-polaroid #polaroid {
                 display: block !important;
                 padding: 0 !important;
@@ -1282,6 +1286,16 @@
                 width: 100% !important;
                 outline: none !important;
             }
+            /* CRITICAL FIX: Hide placeholder text completely in print */
+            body.viewing-polaroid .polaroid-caption input::placeholder {
+                color: transparent !important;
+                opacity: 0 !important;
+                visibility: hidden !important;
+            }
+            /* Also hide when placeholder is shown */
+            body.viewing-polaroid .polaroid-caption input:placeholder-shown {
+                color: transparent !important;
+            }
             body.viewing-polaroid .drop-zone-indicator,
             body.viewing-polaroid .polaroid-clear-btn,
             body.viewing-polaroid .cut-line {
@@ -1327,9 +1341,7 @@
             /* Keep border for cutting guides, remove background patterns */
             body.viewing-photos .photo-slot {
                 border: .3mm solid #000 !important;
-                /* preserve border */
                 background: white !important;
-                /* remove empty pattern */
             }
             body.viewing-photos .photo-slot img {
                 width: 100% !important;
@@ -1344,9 +1356,7 @@
             }
             body.viewing-photos .photo-slot.empty {
                 background: white !important;
-                /* ensure empty slots are white with border */
             }
-            /* Hide any leftover children of photo-wrapper that are not the sheet */
             body.viewing-photos .photo-wrapper>*:not(.photo-sheet) {
                 display: none !important;
             }
@@ -1377,7 +1387,6 @@
                 size: A4;
                 margin: 0;
             }
-            /* Ensure body/html are 100% for accurate sizing */
             html,
             body {
                 margin: 0 !important;
@@ -1385,7 +1394,6 @@
                 width: 100% !important;
                 height: 100% !important;
             }
-            /* Prevent any browser scaling */
             .photo-sheet {
                 transform-origin: top left !important;
             }
