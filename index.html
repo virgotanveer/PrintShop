@@ -990,7 +990,8 @@
         .photo-slot {
             width: var(--photo-w);
             height: var(--photo-h);
-            border: .15mm solid #000;
+            border: .3mm solid #000;
+            /* thicker border for cutting guides */
             background: #fff;
             position: relative;
             overflow: hidden;
@@ -1255,7 +1256,7 @@
                 margin: 0 auto !important;
             }
 
-            /* ── PHOTOS – only active sheet, actual size ── */
+            /* ── PHOTOS – only active sheet, actual size, borders visible ── */
             body.viewing-photos #photos {
                 display: block !important;
             }
@@ -1288,10 +1289,12 @@
             body.viewing-photos .photo-sheet.sheet-mixed.active-print-sheet {
                 display: flex !important;
             }
-            /* Remove any extra spacing */
+            /* Keep border for cutting guides, remove background patterns */
             body.viewing-photos .photo-slot {
-                border: none !important;
+                border: .3mm solid #000 !important;
+                /* preserve border */
                 background: white !important;
+                /* remove empty pattern */
             }
             body.viewing-photos .photo-slot img {
                 width: 100% !important;
@@ -1306,6 +1309,7 @@
             }
             body.viewing-photos .photo-slot.empty {
                 background: white !important;
+                /* ensure empty slots are white with border */
             }
             /* Hide any leftover children of photo-wrapper that are not the sheet */
             body.viewing-photos .photo-wrapper>*:not(.photo-sheet) {
