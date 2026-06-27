@@ -5,6 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>PrintStudio | All-in-One Printing Tool</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMGQ5NDg4IiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTYgOVYyaDEydjciLz48cGF0aCBkPSJNNiAxOEg0YTIgMiAwIDAgMSAxLTItMnYtNWEyIDIgMCAwIDEgMi0yaDE2YTIgMiAwIDAgMSAyIDJ2NWEyIDIgMCAwIDEtMiAyaC0yIi8+PHBhdGggZD0iTTYgMTRoMTJ2OEg2eiIvPjwvc3ZnPg==" />
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIlByaW50U3R1ZGlvIiwKICAic2hvcnRfbmFtZSI6ICJQcmludFN0dWRpbyIsCiAgImRlc2NyaXB0aW9uIjogIkFsbC1pbi1PbmUgUHJpbnRpbmcgVG9vbCIsCiAgInN0YXJ0X3VybCI6ICIuIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjMWMxOTE3IiwKICAidGhlbWVfY29sb3IiOiAiIzBkOTQ4OCIsCiAgImljb25zIjogWwogICAgewogICAgICAic3JjIjogImRhdGE6aW1hZ2Uvc3ZnK3htbCw8c3ZnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zycgdmlld0JveD0nMCAwIDI0IDI0JyBmaWxsPSdub25lJyBzdHJva2U9JyMwZDk0ODgnIHN0cm9rZS13aWR0aD0nMicgc3Ryb2tlLWxpbmVjYXA9J3JvdW5kJyBzdHJva2UtbGluZWpvaW49J3JvdW5kJz48cGF0aCBkPSdNNiA5VjJoMTJ2NycvPjxwYXRoIGQ9J002IDE4SDRhMiAyIDAgMCAxIDEtMnYtNWEyIDIgMCAwIDEgMi0yaDE2YTIgMiAwIDAgMSAyIDJ2NWEyIDIgMCAwIDEtMiAyaC0yJy8+PHBhdGggZD0nTTYgMTRoMTJ2OEg2eicvPjwvc3ZnPiIsCiAgICAgICJzaXplcyI6ICIxOTJ4MTkyIiwKICAgICAgInR5cGUiOiAiaW1hZ2Uvc3ZnK3htbCIsCiAgICAgICJwdXJwb3NlIjogImFueSBtYXNrYWJsZSIKICAgIH0KICBdCn0=" />
+    <!-- Service Worker registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('data:application/javascript;base64,' + btoa(`
+                const CACHE = 'printstudio-v1';
+                const ASSETS = [
+                    './',
+                    'https://cdn.tailwindcss.com',
+                    'https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=DM+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600&display=swap',
+                    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
+                    'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'
+                ];
+                self.addEventListener('install', e => {
+                    e.waitUntil(
+                        caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting())
+                    );
+                });
+                self.addEventListener('activate', e => {
+                    e.waitUntil(
+                        caches.keys().then(keys => Promise.all(
+                            keys.filter(k => k !== CACHE).map(k => caches.delete(k))
+                        )).then(() => self.clients.claim())
+                    );
+                });
+                self.addEventListener('fetch', e => {
+                    e.respondWith(
+                        caches.match(e.request).then(r => r || fetch(e.request))
+                    );
+                });
+            `)).catch(() => {});
+        }
+    </script>
     <script src="https://cdn.tailwindcss.com">
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -1021,6 +1056,40 @@
             opacity: 1;
         }
 
+        /* PWA Install Banner */
+        .pwa-install-banner {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            padding: 14px 24px;
+            display: none;
+            align-items: center;
+            gap: 16px;
+            z-index: 1500;
+            max-width: 90vw;
+            font-size: .875rem;
+        }
+        .pwa-install-banner.show {
+            display: flex;
+        }
+        .pwa-install-banner .btn {
+            flex-shrink: 0;
+        }
+        @media (max-width: 480px) {
+            .pwa-install-banner {
+                flex-wrap: wrap;
+                justify-content: center;
+                text-align: center;
+                bottom: 70px;
+                padding: 12px 16px;
+            }
+        }
+
         /* ── PRINT ── */
         @media print {
             /* Hide all non-essential UI */
@@ -1035,7 +1104,8 @@
             .photo-tabs,
             .photo-hint,
             .polaroid-hero,
-            .polaroid-toolbar {
+            .polaroid-toolbar,
+            .pwa-install-banner {
                 display: none !important;
             }
             body {
@@ -1168,7 +1238,7 @@
             body.viewing-polaroid .polaroid-caption input::placeholder {
                 opacity: 0;
             }
-            body.viewing-polaroid #polaroid > div:not(.polaroid-a4-paper) {
+            body.viewing-polaroid #polaroid>div:not(.polaroid-a4-paper) {
                 display: none !important;
             }
             body.viewing-polaroid .polaroid-hero,
@@ -1209,7 +1279,6 @@
                 padding: 0 !important;
                 border: none !important;
                 transform: none !important;
-                /* force 100% scale */
                 scale: 1 !important;
             }
             /* Show only the active sheet */
@@ -1239,7 +1308,7 @@
                 background: white !important;
             }
             /* Hide any leftover children of photo-wrapper that are not the sheet */
-            body.viewing-photos .photo-wrapper > *:not(.photo-sheet) {
+            body.viewing-photos .photo-wrapper>*:not(.photo-sheet) {
                 display: none !important;
             }
             /* Page size mapping with zero margins */
@@ -1520,10 +1589,52 @@
 
     </main>
 
-    <footer><p>PrintStudio — Crafted for precise, hassle-free printing.</p></footer>
+    <footer>
+        <p>PrintStudio — Crafted for precise, hassle-free printing.</p>
+    </footer>
+
     <div id="toast" class="toast"></div>
 
+    <!-- PWA Install Banner -->
+    <div id="pwa-install-banner" class="pwa-install-banner no-print">
+        <span>📱 Install PrintStudio for offline use</span>
+        <button class="btn btn-accent" id="pwa-install-btn">Install</button>
+        <button class="btn btn-ghost" id="pwa-dismiss-btn">Dismiss</button>
+    </div>
+
     <script>
+        /* ===== PWA INSTALL ===== */
+        let deferredPrompt = null;
+        const installBanner = document.getElementById('pwa-install-banner');
+        const installBtn = document.getElementById('pwa-install-btn');
+        const dismissBtn = document.getElementById('pwa-dismiss-btn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBanner.classList.add('show');
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const result = await deferredPrompt.userChoice;
+                if (result.outcome === 'accepted') {
+                    installBanner.classList.remove('show');
+                }
+                deferredPrompt = null;
+            }
+        });
+
+        dismissBtn.addEventListener('click', () => {
+            installBanner.classList.remove('show');
+        });
+
+        window.addEventListener('appinstalled', () => {
+            installBanner.classList.remove('show');
+            showToast('PrintStudio installed successfully!');
+        });
+
         /* ===== INIT ===== */
         document.addEventListener('DOMContentLoaded', function() {
             initIDSlots();
@@ -1859,7 +1970,7 @@
         }
 
         /* ================================================================
-           PHOTOS — actual size print fix
+           PHOTOS
         ================================================================ */
         var currentPhotoSheetId = 'photo-sheet-mm';
 
