@@ -153,8 +153,8 @@ body.mode-a4 .a4-only{display:flex}
 .polaroid-clear-btn:hover{background:rgba(220,38,38,0.8)}
 .polaroid-image-area.has-image:hover .polaroid-clear-btn{display:flex}
 .cut-line{position:absolute;background:transparent;z-index:100;pointer-events:none}
-.cut-line-v{top:0;bottom:0;width:0;border-left:.5px dashed #bbb}
-.cut-line-h{left:0;right:0;height:0;border-top:.5px dashed #bbb}
+.cut-line-v{top:0;bottom:0;width:0;border-left:1px dashed #999}
+.cut-line-h{left:0;right:0;height:0;border-top:1px dashed #999}
 .polaroid-toolbar{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);display:flex;gap:10px;padding:10px 18px;border-radius:var(--r);z-index:1000}
 .polaroid-btn-primary{background:linear-gradient(135deg,#c2410c,#ea580c);border-color:transparent;color:#fff;box-shadow:0 2px 12px rgba(194,65,12,0.3)}
 .polaroid-btn-primary:hover{background:linear-gradient(135deg,#9a3412,#c2410c);transform:translateY(-1px);box-shadow:0 4px 20px rgba(194,65,12,0.4)}
@@ -224,7 +224,10 @@ footer{text-align:center;padding:24px;color:var(--c-text3);font-size:.8125rem;bo
   body.viewing-polaroid .polaroid-caption input{border:none!important;background:transparent!important;text-align:center!important;font-family:"Caveat",cursive!important;font-size:16pt!important;color:#1a1814!important;width:100%!important;outline:none!important}
   body.viewing-polaroid .polaroid-caption input::placeholder{color:transparent!important;opacity:0!important;visibility:hidden!important}
   body.viewing-polaroid .polaroid-caption input:placeholder-shown{color:transparent!important}
-  body.viewing-polaroid .drop-zone-indicator,body.viewing-polaroid .polaroid-clear-btn,body.viewing-polaroid .cut-line{display:none!important}
+  body.viewing-polaroid .drop-zone-indicator,body.viewing-polaroid .polaroid-clear-btn{display:none!important}
+  body.viewing-polaroid .cut-line{display:block!important;pointer-events:none!important}
+  body.viewing-polaroid .cut-line-v{border-left:1px dashed #999!important}
+  body.viewing-polaroid .cut-line-h{border-top:1px dashed #999!important}
   body.viewing-polaroid .polaroid-image-area.has-image{border:none!important}
   body.viewing-photos #photos{display:block!important}
   body.viewing-photos .photo-wrapper{margin:0!important;padding:0!important;display:block!important;background:#fff!important;background-image:none!important;min-height:0!important;height:auto!important}
