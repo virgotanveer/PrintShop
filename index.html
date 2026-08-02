@@ -192,6 +192,37 @@ body.mode-a4 .a4-only{display:flex}
 .photo-sheet.drag .photo-drop-mask{display:block}
 .hidden-photo{display:none!important}
 
+/* Passport Photo Maker */
+.passport-wrapper{max-width:1100px;margin:0 auto;padding:24px 16px 80px;display:flex;flex-direction:column;gap:16px;align-items:center}
+.passport-toolbar{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;padding:14px 20px;border-radius:var(--r);width:100%;max-width:900px}
+.pp-field{display:flex;flex-direction:column;gap:4px;font-size:.75rem;color:var(--c-text2)}
+.pp-field label{font-weight:600;color:var(--c-text3);text-transform:uppercase;letter-spacing:.04em;font-size:.65rem}
+.pp-field select,.pp-field input[type=number]{background:rgba(255,255,255,0.05);border:1px solid var(--c-border);color:var(--c-text);border-radius:8px;padding:7px 10px;font-family:inherit;font-size:.82rem;min-width:190px}
+.pp-custom-size{flex-direction:row;align-items:center;gap:6px}
+.pp-custom-size input{min-width:56px;text-align:center}
+.hidden-pp{display:none!important}
+.pp-disclaimer{max-width:900px;text-align:center;font-size:.72rem;color:var(--c-text3);line-height:1.5;margin:0 auto}
+.passport-main{display:flex;gap:24px;flex-wrap:wrap;justify-content:center;align-items:flex-start;width:100%;max-width:900px}
+.passport-preview-col{display:flex;flex-direction:column;align-items:center;gap:12px}
+.pp-canvas-shell{position:relative;width:260px;background:repeating-conic-gradient(#e2e8f0 0 25%,#cbd5e1 0 50%) 0/16px 16px;border-radius:10px;overflow:hidden;box-shadow:var(--shadow-lg);cursor:grab;touch-action:none}
+.pp-canvas-shell:active{cursor:grabbing}
+.pp-canvas-shell canvas{display:block;width:100%;height:auto}
+.pp-empty-state{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--c-text3);font-size:.78rem;text-align:center;padding:20px;background:rgba(15,23,42,0.55)}
+.pp-empty-state svg{width:34px;height:34px;opacity:.6}
+.pp-zoom-row{align-items:center;gap:10px;font-size:.75rem;color:var(--c-text2);width:260px}
+.pp-zoom-row input[type=range]{flex:1}
+.pp-hint{font-size:.68rem;color:var(--c-text3);white-space:nowrap}
+.passport-side-col{display:flex;flex-direction:column;gap:14px;width:240px}
+.pp-bg-swatches{align-items:center;gap:8px;font-size:.75rem;color:var(--c-text2)}
+.pp-swatch{width:26px;height:26px;border-radius:50%;border:2px solid var(--c-border);cursor:pointer;padding:0}
+.pp-swatch.active{border-color:var(--c-accent2);box-shadow:0 0 0 2px var(--c-accent-glow)}
+.pp-status{font-size:.75rem;color:var(--c-text2);line-height:1.5;min-height:20px}
+.pp-specs{font-size:.75rem;color:var(--c-text2);background:rgba(255,255,255,0.04);border:1px solid var(--c-border);border-radius:10px;padding:10px 12px;line-height:1.6}
+.passport-side-col .btn{width:100%;justify-content:center}
+.pp-sheet-section{display:flex;flex-direction:column;align-items:center;gap:14px;width:100%}
+.pp-sheet-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.pp-print-sheet{width:4in;height:6in}
+
 /* Footer & Toast */
 footer{text-align:center;padding:24px;color:var(--c-text3);font-size:.8125rem;border-top:1px solid var(--c-border);background:rgba(15,23,42,0.5)}
 .toast{position:fixed;bottom:24px;right:24px;background:var(--c-surface-solid);color:#fff;padding:12px 22px;border-radius:var(--r-sm);box-shadow:var(--shadow-lg);font-size:.875rem;font-weight:500;transform:translateY(80px);opacity:0;transition:all .35s cubic-bezier(.4,0,.2,1);z-index:2000;pointer-events:none;border:1px solid var(--c-border);backdrop-filter:blur(12px)}
@@ -248,6 +279,13 @@ footer{text-align:center;padding:24px;color:var(--c-text3);font-size:.8125rem;bo
   body.viewing-photos .sheet-mm.active-print-sheet,body.viewing-photos .sheet-inch.active-print-sheet,body.viewing-photos .sheet-mixed.active-print-sheet,body.viewing-photos .sheet-4r-1_5x2.active-print-sheet{page:4R}
   body.viewing-photos .sheet-5r.active-print-sheet,body.viewing-photos .sheet-5r-50x60.active-print-sheet,body.viewing-photos .sheet-5r-50x70.active-print-sheet{page:5R}
   body.viewing-photos .sheet-a4-30.active-print-sheet{page:A4}
+  body.viewing-passport #passport{display:block!important}
+  body.viewing-photos #passport,body.viewing-polaroid #passport,body.viewing-passport #id-print,body.viewing-passport #photos,body.viewing-passport #polaroid{display:none!important}
+  body.viewing-passport .passport-wrapper{margin:0!important;padding:0!important;display:block!important;background:#fff!important;background-image:none!important}
+  body.viewing-passport .passport-toolbar,body.viewing-passport .pp-disclaimer,body.viewing-passport .passport-main{display:none!important}
+  body.viewing-passport #pp-print-sheet{display:grid!important;box-shadow:none!important;margin:0 auto!important;border:none!important;page-break-inside:avoid!important;page-break-after:avoid!important;page:4R}
+  body.viewing-passport .photo-slot{border:.3mm solid #000!important;background:#fff!important}
+  body.viewing-passport .photo-slot img{width:100%!important;height:100%!important;object-fit:cover!important}
   @page 4R{size:4in 6in;margin:0}@page 5R{size:5in 7in;margin:0}@page A4{size:A4;margin:0}
   html,body{margin:0!important;padding:0!important;width:100%!important;height:100%!important}
   .photo-sheet{transform-origin:top left!important}
@@ -287,6 +325,7 @@ footer{text-align:center;padding:24px;color:var(--c-text3);font-size:.8125rem;bo
       <button class="nav-btn active" data-tab="id-print">ID Print</button>
       <button class="nav-btn" data-tab="polaroid">Polaroid</button>
       <button class="nav-btn" data-tab="photos">Photos</button>
+      <button class="nav-btn" data-tab="passport">Passport Photo</button>
     </nav>
   </div>
 </header>
@@ -441,6 +480,76 @@ footer{text-align:center;padding:24px;color:var(--c-text3);font-size:.8125rem;bo
   </div>
 </section>
 
+<!-- PASSPORT PHOTO MAKER -->
+<section id="passport" class="tool-section">
+  <div class="passport-wrapper">
+    <div class="passport-toolbar glass no-print">
+      <div class="pp-field">
+        <label>Country / Document</label>
+        <select id="pp-country"></select>
+      </div>
+      <div class="pp-field pp-custom-size hidden-pp" id="pp-custom-wrap">
+        <label style="width:100%">Custom size (mm)</label>
+        <input id="pp-custom-w" type="number" min="10" max="120" value="35"> ×
+        <input id="pp-custom-h" type="number" min="10" max="120" value="45">
+      </div>
+      <button class="btn btn-accent" id="pp-upload-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Upload Photo
+      </button>
+      <input id="pp-file" type="file" accept="image/*" style="display:none">
+      <div class="toolbar-divider"></div>
+      <button class="btn btn-ghost" id="pp-autocrop" disabled>Auto Crop Face</button>
+      <button class="btn btn-ghost" id="pp-removebg" disabled>Remove Background</button>
+      <button class="btn btn-danger" id="pp-reset" disabled>Reset</button>
+    </div>
+
+    <p class="pp-disclaimer no-print">Sizes shown are common standard specifications — always confirm the exact current requirements with your country's official passport/visa guidance before submitting a photo.</p>
+
+    <div class="passport-main">
+      <div class="passport-preview-col">
+        <div class="pp-canvas-shell" id="pp-canvas-shell">
+          <canvas id="pp-canvas" width="413" height="531"></canvas>
+          <div class="pp-empty-state" id="pp-empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+            <span>Upload a clear, front-facing photo to begin</span>
+          </div>
+        </div>
+        <div class="pp-zoom-row no-print" id="pp-zoom-row" style="display:none">
+          <span>Zoom</span><input id="pp-zoom" type="range" min="100" max="220" value="100">
+          <span class="pp-hint">Drag photo to reposition</span>
+        </div>
+      </div>
+
+      <div class="passport-side-col no-print">
+        <div class="pp-bg-swatches" id="pp-bg-row" style="display:none">
+          <span>Background</span>
+          <button class="pp-swatch active" data-bg="white" style="background:#ffffff" title="White"></button>
+          <button class="pp-swatch" data-bg="lightgray" style="background:#eef0f2" title="Light Grey"></button>
+          <button class="pp-swatch" data-bg="blue" style="background:#4b7bec" title="Blue"></button>
+          <button class="pp-swatch" data-bg="red" style="background:#e74c3c" title="Red"></button>
+        </div>
+        <div class="pp-status" id="pp-status">Select a country and upload a photo to get started.</div>
+        <div class="pp-specs" id="pp-specs"></div>
+        <button class="btn btn-success" id="pp-generate" disabled>Generate Print Sheet</button>
+        <button class="btn btn-ghost" id="pp-download-single" disabled>Download Digital Photo</button>
+      </div>
+    </div>
+
+    <div class="pp-sheet-section" id="pp-sheet-section" style="display:none">
+      <div class="photo-hint no-print">Ready to print. <b>Set printer "Scale" to 100% / Actual size.</b></div>
+      <div id="pp-print-sheet" class="photo-sheet pp-print-sheet"></div>
+      <div class="pp-sheet-actions no-print">
+        <button class="btn btn-success" id="pp-print-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          Print Sheet
+        </button>
+        <button class="btn btn-ghost" id="pp-download-sheet">Download Sheet PNG</button>
+      </div>
+    </div>
+  </div>
+</section>
+
 </main>
 
 <footer><p>PrintStudio — Crafted for precise, hassle-free printing.</p></footer>
@@ -469,7 +578,7 @@ if('serviceWorker'in navigator){
 
 /* ===== INIT ===== */
 document.addEventListener('DOMContentLoaded',()=>{
-  initIDSlots();polaroidInitGrid();generateA430Slots();setupPhotoListeners();setupNav();setupIDButtons();setMode('a6');
+  initIDSlots();polaroidInitGrid();generateA430Slots();setupPhotoListeners();setupNav();setupIDButtons();setupPassport();setMode('a6');
 });
 
 /* ===== NAV ===== */
@@ -483,9 +592,10 @@ function switchTab(id){
   document.querySelector(`.nav-btn[data-tab="${id}"]`).classList.add('active');
   document.querySelectorAll('.tool-section').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  document.body.classList.remove('viewing-photos','viewing-polaroid','mode-a6','mode-a4');
+  document.body.classList.remove('viewing-photos','viewing-polaroid','viewing-passport','mode-a6','mode-a4');
   if(id==='photos')document.body.classList.add('viewing-photos');
   else if(id==='polaroid')document.body.classList.add('viewing-polaroid');
+  else if(id==='passport')document.body.classList.add('viewing-passport');
   else if(id==='id-print')setMode('a6');
   if(id==='photos')setTimeout(updateActivePrintSheet,50);
   if(id==='polaroid')setTimeout(()=>{const p=document.getElementById('polaroid-a4-paper');if(p)p.style.display='grid'},50);
@@ -745,6 +855,278 @@ function setupPhotoListeners(){
     });
   });
   updateActivePrintSheet();
+}
+
+/* ===== PASSPORT PHOTO MAKER ===== */
+const PP_COUNTRIES=[
+  {n:"Afghanistan",w:35,h:45,bg:"white"},{n:"Australia",w:35,h:45,bg:"white"},
+  {n:"Austria",w:35,h:45,bg:"white"},{n:"Bangladesh",w:35,h:45,bg:"white"},
+  {n:"Belgium",w:35,h:45,bg:"white"},{n:"Brazil",w:50,h:70,bg:"white"},
+  {n:"Canada",w:50,h:70,bg:"white"},{n:"China",w:33,h:48,bg:"white"},
+  {n:"Egypt",w:40,h:60,bg:"white"},{n:"France",w:35,h:45,bg:"white"},
+  {n:"Germany",w:35,h:45,bg:"white"},{n:"India",w:35,h:45,bg:"white"},
+  {n:"Indonesia",w:35,h:45,bg:"red"},{n:"Ireland",w:35,h:45,bg:"white"},
+  {n:"Italy",w:35,h:45,bg:"white"},{n:"Japan",w:35,h:45,bg:"white"},
+  {n:"Kenya",w:51,h:51,bg:"white"},{n:"Malaysia",w:35,h:50,bg:"white"},
+  {n:"Mexico",w:35,h:45,bg:"white"},{n:"Nepal",w:35,h:45,bg:"white"},
+  {n:"Netherlands",w:35,h:45,bg:"lightgray"},{n:"New Zealand",w:35,h:45,bg:"white"},
+  {n:"Nigeria",w:35,h:45,bg:"white"},{n:"Pakistan",w:35,h:45,bg:"white"},
+  {n:"Philippines",w:35,h:45,bg:"white"},{n:"Poland",w:35,h:45,bg:"white"},
+  {n:"Portugal",w:35,h:45,bg:"white"},{n:"Russia",w:35,h:45,bg:"white"},
+  {n:"Saudi Arabia",w:40,h:60,bg:"white"},{n:"Singapore",w:35,h:45,bg:"white"},
+  {n:"South Africa",w:35,h:45,bg:"white"},{n:"South Korea",w:35,h:45,bg:"white"},
+  {n:"Spain",w:35,h:45,bg:"white"},{n:"Sri Lanka",w:35,h:45,bg:"white"},
+  {n:"Sweden",w:35,h:45,bg:"white"},{n:"Switzerland",w:35,h:45,bg:"white"},
+  {n:"Thailand",w:35,h:45,bg:"white"},{n:"Turkey",w:50,h:60,bg:"white"},
+  {n:"UAE",w:43,h:55,bg:"white"},{n:"Ukraine",w:35,h:45,bg:"white"},
+  {n:"United Kingdom",w:35,h:45,bg:"lightgray"},{n:"United States",w:51,h:51,bg:"white"},
+  {n:"Vietnam",w:40,h:60,bg:"white"},
+  {n:"Custom size…",w:35,h:45,bg:"white",custom:true}
+];
+const PP_BG_COLORS={white:'#ffffff',lightgray:'#eef0f2',blue:'#4b7bec',red:'#e74c3c'};
+
+let ppCountryData=null,ppOriginalImg=null,ppFaceBox=null,ppZoom=1,ppOffsetX=0,ppOffsetY=0,
+    ppBgKey='white',ppBgRemovedImg=null,ppFaceApiLoaded=false,ppDragging=false,ppDragStart=null;
+
+function ppEl(id){return document.getElementById(id)}
+function ppSetStatus(msg){ppEl('pp-status').textContent=msg}
+
+function ppPopulateCountries(){
+  const sel=ppEl('pp-country');
+  PP_COUNTRIES.forEach((c,i)=>{
+    const o=document.createElement('option');
+    o.value=i;o.textContent=c.custom?c.n:`${c.n} — ${c.w}×${c.h}mm`;
+    sel.appendChild(o);
+  });
+  const def=PP_COUNTRIES.findIndex(c=>c.n==='Pakistan');
+  sel.value=def>=0?def:0;
+  ppOnCountryChange();
+}
+function ppOnCountryChange(){
+  const sel=ppEl('pp-country');
+  ppCountryData=PP_COUNTRIES[+sel.value];
+  ppEl('pp-custom-wrap').classList.toggle('hidden-pp',!ppCountryData.custom);
+  ppBgKey=ppCountryData.bg;
+  document.querySelectorAll('.pp-swatch').forEach(s=>s.classList.toggle('active',s.dataset.bg===ppBgKey));
+  ppUpdateSpecs();
+  if(ppOriginalImg)ppRender();
+}
+function ppTargetMM(){
+  if(ppCountryData.custom){
+    return {w:(+ppEl('pp-custom-w').value)||35,h:(+ppEl('pp-custom-h').value)||45};
+  }
+  return {w:ppCountryData.w,h:ppCountryData.h};
+}
+function ppUpdateSpecs(){
+  const {w,h}=ppTargetMM();
+  ppEl('pp-specs').innerHTML=`<b>${ppCountryData.n.replace('…','')}</b><br>${w}×${h} mm (${(w/25.4).toFixed(2)}×${(h/25.4).toFixed(2)} in)<br>Background: ${ppBgKey}`;
+}
+
+/* ---- Face detection (lazy-loaded) ---- */
+async function ppEnsureFaceApi(){
+  if(ppFaceApiLoaded)return true;
+  if(!window.faceapi){
+    const ok=await new Promise(res=>{
+      const s=document.createElement('script');
+      s.src='https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js';
+      s.onload=()=>res(true);s.onerror=()=>res(false);document.head.appendChild(s);
+    });
+    if(!ok)return false;
+  }
+  if(!window.faceapi)return false;
+  try{
+    const base='https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js-models@master';
+    await faceapi.nets.tinyFaceDetector.loadFromUri(base+'/tiny_face_detector');
+    ppFaceApiLoaded=true;return true;
+  }catch(e){return false}
+}
+async function ppDetectFace(img){
+  const ok=await ppEnsureFaceApi();
+  if(!ok||!window.faceapi)return null;
+  try{
+    const det=await faceapi.detectSingleFace(img,new faceapi.TinyFaceDetectorOptions({inputSize:320,scoreThreshold:0.4}));
+    return det?det.box:null;
+  }catch(e){return null}
+}
+async function ppAutoDetectAndRender(){
+  ppSetStatus('Detecting face…');
+  const box=await ppDetectFace(ppOriginalImg);
+  ppFaceBox=box;
+  ppSetStatus(box?'Face detected — auto-cropped. Fine-tune with zoom/drag if needed.':'Could not auto-detect a face — using a centered crop. Use zoom/drag to align.');
+  ppRender();
+}
+
+/* ---- Crop geometry ---- */
+function ppBaseCropRect(ratio){
+  const img=ppOriginalImg;let cropH,cx,cy;
+  if(ppFaceBox){
+    const fb=ppFaceBox;
+    const crownY=fb.y-fb.height*0.35,chinY=fb.y+fb.height*1.05;
+    cropH=(chinY-crownY)/0.66;
+    cx=fb.x+fb.width/2;cy=(crownY+chinY)/2;
+  }else{
+    cropH=img.naturalHeight*0.85;cx=img.naturalWidth/2;cy=img.naturalHeight*0.4;
+  }
+  return {cropH,cropW:cropH*ratio,cx,cy};
+}
+function ppGetCropRect(){
+  const img=ppOriginalImg;const {w:tw,h:th}=ppTargetMM();const ratio=tw/th;
+  const base=ppBaseCropRect(ratio);
+  let cropH=base.cropH/ppZoom,cropW=cropH*ratio;
+  if(cropW>img.naturalWidth){cropW=img.naturalWidth;cropH=cropW/ratio}
+  if(cropH>img.naturalHeight){cropH=img.naturalHeight;cropW=cropH*ratio}
+  let cx=base.cx-ppOffsetX,cy=base.cy-ppOffsetY;
+  let sx=cx-cropW/2,sy=cy-cropH*0.42;
+  sx=Math.max(0,Math.min(sx,img.naturalWidth-cropW));
+  sy=Math.max(0,Math.min(sy,img.naturalHeight-cropH));
+  return {sx,sy,sw:cropW,sh:cropH};
+}
+function ppRender(){
+  if(!ppOriginalImg)return;
+  const {w:tw,h:th}=ppTargetMM();
+  const pxW=Math.round(tw/25.4*300),pxH=Math.round(th/25.4*300);
+  const canvas=ppEl('pp-canvas');canvas.width=pxW;canvas.height=pxH;
+  const ctx=canvas.getContext('2d');
+  const rect=ppGetCropRect();
+  const src=ppBgRemovedImg||ppOriginalImg;
+  ctx.clearRect(0,0,pxW,pxH);
+  if(ppBgRemovedImg){ctx.fillStyle=PP_BG_COLORS[ppBgKey]||'#ffffff';ctx.fillRect(0,0,pxW,pxH)}
+  ctx.drawImage(src,rect.sx,rect.sy,rect.sw,rect.sh,0,0,pxW,pxH);
+}
+
+/* ---- Background removal (lazy-loaded) ---- */
+async function ppEnsureBgLib(){
+  if(window.__ppRemoveBg)return true;
+  try{
+    const mod=await import('https://esm.sh/@imgly/background-removal@1.5.7');
+    window.__ppRemoveBg=mod.removeBackground;return true;
+  }catch(e){console.error(e);return false}
+}
+async function ppRemoveBackground(){
+  if(!ppOriginalImg)return;
+  ppEl('pp-removebg').disabled=true;
+  ppSetStatus('Removing background… downloading the AI model on first use, this can take up to 30s.');
+  const ok=await ppEnsureBgLib();
+  if(!ok){
+    ppSetStatus('Background removal is unavailable right now (check your internet connection). You can still print using the original background.');
+    ppEl('pp-removebg').disabled=false;return;
+  }
+  try{
+    const resp=await fetch(ppOriginalImg.src);
+    const blob=await resp.blob();
+    const outBlob=await window.__ppRemoveBg(blob);
+    const url=URL.createObjectURL(outBlob);
+    const img=new Image();
+    await new Promise((res,rej)=>{img.onload=res;img.onerror=rej;img.src=url});
+    ppBgRemovedImg=img;
+    ppSetStatus('Background removed. Pick a background color, then generate your print sheet.');
+    ppRender();
+  }catch(e){
+    console.error(e);
+    ppSetStatus('Background removal failed for this photo. You can still continue with the original background.');
+  }
+  ppEl('pp-removebg').disabled=false;
+}
+
+/* ---- Print sheet ---- */
+function ppGenerateSheet(){
+  if(!ppOriginalImg)return;
+  const {w:tw,h:th}=ppTargetMM();
+  const sheetWmm=4*25.4,sheetHmm=6*25.4,gap=2;
+  const cols=Math.max(1,Math.floor((sheetWmm+gap)/(tw+gap)));
+  const rows=Math.max(1,Math.floor((sheetHmm+gap)/(th+gap)));
+  const count=Math.min(cols*rows,12);
+  const sheet=ppEl('pp-print-sheet');
+  sheet.innerHTML='';
+  sheet.style.setProperty('--pw',tw+'mm');
+  sheet.style.setProperty('--ph',th+'mm');
+  sheet.style.gap='2mm';
+  sheet.style.gridTemplateColumns=`repeat(${cols},var(--pw))`;
+  sheet.style.gridTemplateRows=`repeat(${rows},var(--ph))`;
+  const dataUrl=ppEl('pp-canvas').toDataURL('image/png');
+  for(let i=0;i<count;i++){
+    const slot=document.createElement('div');slot.className='photo-slot';
+    const img=document.createElement('img');img.src=dataUrl;img.alt='';
+    slot.appendChild(img);sheet.appendChild(slot);
+  }
+  ppEl('pp-sheet-section').style.display='flex';
+  ppEl('pp-sheet-section').scrollIntoView({behavior:'smooth',block:'start'});
+  showToast(`Print sheet ready — ${count} copies on a 4×6in sheet.`);
+}
+
+function setupPassport(){
+  ppPopulateCountries();
+  ppEl('pp-country').addEventListener('change',ppOnCountryChange);
+  ['pp-custom-w','pp-custom-h'].forEach(id=>ppEl(id).addEventListener('input',()=>{ppUpdateSpecs();if(ppOriginalImg)ppRender()}));
+
+  ppEl('pp-upload-btn').addEventListener('click',()=>ppEl('pp-file').click());
+  ppEl('pp-file').addEventListener('change',e=>{
+    const f=e.target.files[0];if(!f)return;
+    readFileAsUrl(f).then(url=>{
+      const img=new Image();
+      img.onload=async()=>{
+        ppOriginalImg=img;ppBgRemovedImg=null;ppZoom=1;ppOffsetX=0;ppOffsetY=0;ppEl('pp-zoom').value=100;
+        ppEl('pp-empty-state').style.display='none';
+        ppEl('pp-zoom-row').style.display='flex';
+        ppEl('pp-bg-row').style.display='flex';
+        ['pp-autocrop','pp-removebg','pp-reset','pp-generate','pp-download-single'].forEach(id=>ppEl(id).disabled=false);
+        ppEl('pp-sheet-section').style.display='none';
+        await ppAutoDetectAndRender();
+      };
+      img.src=url;
+    });
+    e.target.value='';
+  });
+
+  ppEl('pp-autocrop').addEventListener('click',()=>{
+    ppZoom=1;ppOffsetX=0;ppOffsetY=0;ppEl('pp-zoom').value=100;ppAutoDetectAndRender();
+  });
+  ppEl('pp-reset').addEventListener('click',()=>{
+    ppZoom=1;ppOffsetX=0;ppOffsetY=0;ppEl('pp-zoom').value=100;ppBgRemovedImg=null;
+    if(ppOriginalImg)ppAutoDetectAndRender();
+  });
+  ppEl('pp-removebg').addEventListener('click',ppRemoveBackground);
+  ppEl('pp-zoom').addEventListener('input',e=>{ppZoom=(+e.target.value)/100;ppRender()});
+
+  document.querySelectorAll('.pp-swatch').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.pp-swatch').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');ppBgKey=btn.dataset.bg;ppUpdateSpecs();ppRender();
+    });
+  });
+
+  const shell=ppEl('pp-canvas-shell');
+  shell.addEventListener('pointerdown',e=>{
+    if(!ppOriginalImg)return;
+    ppDragging=true;ppDragStart={x:e.clientX,y:e.clientY,offX:ppOffsetX,offY:ppOffsetY};
+    shell.setPointerCapture(e.pointerId);
+  });
+  shell.addEventListener('pointermove',e=>{
+    if(!ppDragging)return;
+    const rect=ppGetCropRect();
+    const displayW=ppEl('pp-canvas').getBoundingClientRect().width||1;
+    const scale=rect.sw/displayW;
+    ppOffsetX=ppDragStart.offX+(e.clientX-ppDragStart.x)*scale;
+    ppOffsetY=ppDragStart.offY+(e.clientY-ppDragStart.y)*scale;
+    ppRender();
+  });
+  ['pointerup','pointerleave','pointercancel'].forEach(ev=>shell.addEventListener(ev,()=>ppDragging=false));
+
+  ppEl('pp-generate').addEventListener('click',ppGenerateSheet);
+  ppEl('pp-print-btn').addEventListener('click',()=>window.print());
+  ppEl('pp-download-sheet').addEventListener('click',()=>{
+    const sheet=ppEl('pp-print-sheet');
+    showToast('Generating image…');
+    html2canvas(sheet,{scale:3,useCORS:true,backgroundColor:'#ffffff'}).then(canvas=>{
+      const a=document.createElement('a');a.download='passport-photo-sheet.png';a.href=canvas.toDataURL('image/png');a.click();
+    }).catch(err=>showToast('Download failed: '+err.message));
+  });
+  ppEl('pp-download-single').addEventListener('click',()=>{
+    const canvas=ppEl('pp-canvas');
+    const a=document.createElement('a');
+    a.download=`passport-photo-${ppCountryData.n.replace(/[^a-z0-9]+/gi,'-').toLowerCase()}.png`;
+    a.href=canvas.toDataURL('image/png');a.click();
+  });
 }
 </script>
 </body>
