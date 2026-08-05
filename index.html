@@ -222,6 +222,7 @@ body.mode-a4 .a4-only{display:flex}
 .pp-sheet-section{display:flex;flex-direction:column;align-items:center;gap:14px;width:100%}
 .pp-sheet-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
 .pp-print-sheet{width:4in;height:6in}
+.pp-brush-active{background:linear-gradient(135deg,var(--c-accent),#6366f1)!important;color:#fff!important;border-color:transparent!important}
 
 /* Footer & Toast */
 footer{text-align:center;padding:24px;color:var(--c-text3);font-size:.8125rem;border-top:1px solid var(--c-border);background:rgba(15,23,42,0.5)}
@@ -499,6 +500,13 @@ footer{text-align:center;padding:24px;color:var(--c-text3);font-size:.8125rem;bo
       </button>
       <input id="pp-file" type="file" accept="image/*" style="display:none">
       <div class="toolbar-divider"></div>
+      <div class="pp-field">
+        <label>BG Removal Quality</label>
+        <select id="pp-quality">
+          <option value="high" selected>High Quality (slower)</option>
+          <option value="fast">Fast (lower quality)</option>
+        </select>
+      </div>
       <button class="btn btn-ghost" id="pp-autocrop" disabled>Auto Crop Face</button>
       <button class="btn btn-ghost" id="pp-removebg" disabled>Remove Background</button>
       <button class="btn btn-danger" id="pp-reset" disabled>Reset</button>
@@ -518,6 +526,12 @@ footer{text-align:center;padding:24px;color:var(--c-text3);font-size:.8125rem;bo
         <div class="pp-zoom-row no-print" id="pp-zoom-row" style="display:none">
           <span>Zoom</span><input id="pp-zoom" type="range" min="100" max="220" value="100">
           <span class="pp-hint">Drag photo to reposition</span>
+        </div>
+        <div class="pp-zoom-row no-print" id="pp-retouch-row" style="display:none">
+          <button class="btn btn-ghost" id="pp-brush-erase" type="button">Erase</button>
+          <button class="btn btn-ghost" id="pp-brush-restore" type="button">Restore</button>
+          <span>Size</span><input id="pp-brush-size" type="range" min="8" max="80" value="28">
+          <span class="pp-hint">Paint to fix missed spots</span>
         </div>
       </div>
 
@@ -886,7 +900,8 @@ const PP_COUNTRIES=[
 const PP_BG_COLORS={white:'#ffffff',lightgray:'#eef0f2',blue:'#4b7bec',red:'#e74c3c'};
 
 let ppCountryData=null,ppOriginalImg=null,ppFaceBox=null,ppZoom=1,ppOffsetX=0,ppOffsetY=0,
-    ppBgKey='white',ppBgRemovedImg=null,ppFaceApiLoaded=false,ppDragging=false,ppDragStart=null;
+    ppBgKey='white',ppBgRemovedImg=null,ppFaceApiLoaded=false,ppDragging=false,ppDragStart=null,
+    ppMaskCanvas=null,ppOrigCanvas=null,ppBrushMode=null,ppBrushSize=28,ppBrushActive=false;
 
 function ppEl(id){return document.getElementById(id)}
 function ppSetStatus(msg){ppEl('pp-status').textContent=msg}
@@ -1002,10 +1017,21 @@ async function ppEnsureBgLib(){
     window.__ppRemoveBg=mod.removeBackground;return true;
   }catch(e){console.error(e);return false}
 }
+function ppFeatherMaskEdges(canvas){
+  // Softens jagged matte edges by lightly blurring the cutout (helps hair/edge artifacts).
+  const tmp=document.createElement('canvas');tmp.width=canvas.width;tmp.height=canvas.height;
+  const tctx=tmp.getContext('2d');
+  tctx.filter='blur(1px)';tctx.drawImage(canvas,0,0);
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(tmp,0,0);
+}
 async function ppRemoveBackground(){
   if(!ppOriginalImg)return;
   ppEl('pp-removebg').disabled=true;
-  ppSetStatus('Removing background… downloading the AI model on first use, this can take up to 30s.');
+  const wantHigh=ppEl('pp-quality').value==='high';
+  ppSetStatus(wantHigh
+    ?'Removing background with the high-quality model… first use downloads ~80–170MB, this can take a while.'
+    :'Removing background… downloading the AI model on first use, this can take up to 30s.');
   const ok=await ppEnsureBgLib();
   if(!ok){
     ppSetStatus('Background removal is unavailable right now (check your internet connection). You can still print using the original background.');
@@ -1014,18 +1040,59 @@ async function ppRemoveBackground(){
   try{
     const resp=await fetch(ppOriginalImg.src);
     const blob=await resp.blob();
-    const outBlob=await window.__ppRemoveBg(blob);
+    const modelName=wantHigh?'isnet':'isnet_fp16';
+    let outBlob;
+    try{
+      outBlob=await window.__ppRemoveBg(blob,{model:modelName,device:'gpu',output:{quality:1}});
+    }catch(e1){
+      outBlob=await window.__ppRemoveBg(blob,{model:modelName,device:'cpu',output:{quality:1}});
+    }
     const url=URL.createObjectURL(outBlob);
     const img=new Image();
     await new Promise((res,rej)=>{img.onload=res;img.onerror=rej;img.src=url});
-    ppBgRemovedImg=img;
-    ppSetStatus('Background removed. Pick a background color, then generate your print sheet.');
+    const nw=ppOriginalImg.naturalWidth,nh=ppOriginalImg.naturalHeight;
+    ppMaskCanvas=document.createElement('canvas');ppMaskCanvas.width=nw;ppMaskCanvas.height=nh;
+    ppMaskCanvas.getContext('2d').drawImage(img,0,0,nw,nh);
+    ppFeatherMaskEdges(ppMaskCanvas);
+    ppOrigCanvas=document.createElement('canvas');ppOrigCanvas.width=nw;ppOrigCanvas.height=nh;
+    ppOrigCanvas.getContext('2d').drawImage(ppOriginalImg,0,0,nw,nh);
+    ppBgRemovedImg=ppMaskCanvas;
+    ppEl('pp-retouch-row').style.display='flex';
+    ppSetStatus('Background removed. Missed a spot? Use Erase/Restore below to touch it up, then pick a background color.');
     ppRender();
   }catch(e){
     console.error(e);
     ppSetStatus('Background removal failed for this photo. You can still continue with the original background.');
   }
   ppEl('pp-removebg').disabled=false;
+}
+
+/* ---- Manual retouch (erase / restore brush) ---- */
+function ppApplyBrush(srcX,srcY,radius){
+  if(!ppMaskCanvas||!ppBrushMode)return;
+  const mctx=ppMaskCanvas.getContext('2d');
+  mctx.save();
+  if(ppBrushMode==='erase'){
+    mctx.globalCompositeOperation='destination-out';
+    mctx.beginPath();mctx.arc(srcX,srcY,radius,0,Math.PI*2);mctx.fill();
+  }else if(ppBrushMode==='restore'&&ppOrigCanvas){
+    mctx.beginPath();mctx.arc(srcX,srcY,radius,0,Math.PI*2);mctx.clip();
+    mctx.drawImage(ppOrigCanvas,0,0);
+  }
+  mctx.restore();
+  ppRender();
+}
+function ppPaintAtEvent(e){
+  if(!ppMaskCanvas)return;
+  const canvas=ppEl('pp-canvas');
+  const bcr=canvas.getBoundingClientRect();
+  const px=(e.clientX-bcr.left)*(canvas.width/bcr.width);
+  const py=(e.clientY-bcr.top)*(canvas.height/bcr.height);
+  const rect=ppGetCropRect();
+  const srcX=rect.sx+(px/canvas.width)*rect.sw;
+  const srcY=rect.sy+(py/canvas.height)*rect.sh;
+  const srcRadius=(ppBrushSize/2)*(rect.sw/canvas.width);
+  ppApplyBrush(srcX,srcY,srcRadius);
 }
 
 /* ---- Print sheet ---- */
@@ -1065,10 +1132,13 @@ function setupPassport(){
     readFileAsUrl(f).then(url=>{
       const img=new Image();
       img.onload=async()=>{
-        ppOriginalImg=img;ppBgRemovedImg=null;ppZoom=1;ppOffsetX=0;ppOffsetY=0;ppEl('pp-zoom').value=100;
+        ppOriginalImg=img;ppBgRemovedImg=null;ppMaskCanvas=null;ppOrigCanvas=null;ppBrushMode=null;
+        ppZoom=1;ppOffsetX=0;ppOffsetY=0;ppEl('pp-zoom').value=100;
         ppEl('pp-empty-state').style.display='none';
         ppEl('pp-zoom-row').style.display='flex';
         ppEl('pp-bg-row').style.display='flex';
+        ppEl('pp-retouch-row').style.display='none';
+        document.querySelectorAll('.pp-brush-active').forEach(b=>b.classList.remove('pp-brush-active'));
         ['pp-autocrop','pp-removebg','pp-reset','pp-generate','pp-download-single'].forEach(id=>ppEl(id).disabled=false);
         ppEl('pp-sheet-section').style.display='none';
         await ppAutoDetectAndRender();
@@ -1082,7 +1152,10 @@ function setupPassport(){
     ppZoom=1;ppOffsetX=0;ppOffsetY=0;ppEl('pp-zoom').value=100;ppAutoDetectAndRender();
   });
   ppEl('pp-reset').addEventListener('click',()=>{
-    ppZoom=1;ppOffsetX=0;ppOffsetY=0;ppEl('pp-zoom').value=100;ppBgRemovedImg=null;
+    ppZoom=1;ppOffsetX=0;ppOffsetY=0;ppEl('pp-zoom').value=100;
+    ppBgRemovedImg=null;ppMaskCanvas=null;ppOrigCanvas=null;ppBrushMode=null;
+    ppEl('pp-retouch-row').style.display='none';
+    document.querySelectorAll('.pp-brush-active').forEach(b=>b.classList.remove('pp-brush-active'));
     if(ppOriginalImg)ppAutoDetectAndRender();
   });
   ppEl('pp-removebg').addEventListener('click',ppRemoveBackground);
@@ -1095,13 +1168,29 @@ function setupPassport(){
     });
   });
 
+  ppEl('pp-brush-erase').addEventListener('click',()=>{
+    ppBrushMode=ppBrushMode==='erase'?null:'erase';
+    ppEl('pp-brush-erase').classList.toggle('pp-brush-active',ppBrushMode==='erase');
+    ppEl('pp-brush-restore').classList.remove('pp-brush-active');
+  });
+  ppEl('pp-brush-restore').addEventListener('click',()=>{
+    ppBrushMode=ppBrushMode==='restore'?null:'restore';
+    ppEl('pp-brush-restore').classList.toggle('pp-brush-active',ppBrushMode==='restore');
+    ppEl('pp-brush-erase').classList.remove('pp-brush-active');
+  });
+  ppEl('pp-brush-size').addEventListener('input',e=>{ppBrushSize=+e.target.value});
+
   const shell=ppEl('pp-canvas-shell');
   shell.addEventListener('pointerdown',e=>{
     if(!ppOriginalImg)return;
+    if(ppBrushMode&&ppMaskCanvas){
+      ppBrushActive=true;shell.setPointerCapture(e.pointerId);ppPaintAtEvent(e);return;
+    }
     ppDragging=true;ppDragStart={x:e.clientX,y:e.clientY,offX:ppOffsetX,offY:ppOffsetY};
     shell.setPointerCapture(e.pointerId);
   });
   shell.addEventListener('pointermove',e=>{
+    if(ppBrushMode&&ppBrushActive){ppPaintAtEvent(e);return}
     if(!ppDragging)return;
     const rect=ppGetCropRect();
     const displayW=ppEl('pp-canvas').getBoundingClientRect().width||1;
@@ -1110,7 +1199,7 @@ function setupPassport(){
     ppOffsetY=ppDragStart.offY+(e.clientY-ppDragStart.y)*scale;
     ppRender();
   });
-  ['pointerup','pointerleave','pointercancel'].forEach(ev=>shell.addEventListener(ev,()=>ppDragging=false));
+  ['pointerup','pointerleave','pointercancel'].forEach(ev=>shell.addEventListener(ev,()=>{ppDragging=false;ppBrushActive=false}));
 
   ppEl('pp-generate').addEventListener('click',ppGenerateSheet);
   ppEl('pp-print-btn').addEventListener('click',()=>window.print());
