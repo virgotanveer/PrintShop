@@ -224,6 +224,24 @@ body.mode-a4 .a4-only{display:flex}
 .pp-print-sheet{width:4in;height:6in}
 .pp-brush-active{background:linear-gradient(135deg,var(--c-accent),#6366f1)!important;color:#fff!important;border-color:transparent!important}
 
+/* Sticker Sheet Maker */
+.st-wrapper{max-width:1100px;margin:0 auto;padding:24px 16px 80px;display:flex;flex-direction:column;gap:16px;align-items:center}
+.st-toolbar{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;padding:14px 20px;border-radius:var(--r);width:100%;max-width:900px}
+.st-tray{display:flex;flex-wrap:wrap;gap:10px;width:100%;max-width:900px;justify-content:center}
+.st-thumb{position:relative;width:84px;background:rgba(255,255,255,0.04);border:1px solid var(--c-border);border-radius:10px;padding:8px 6px 6px;display:flex;flex-direction:column;align-items:center;gap:4px}
+.st-thumb img{width:64px;height:64px;object-fit:contain;border-radius:6px;background:repeating-conic-gradient(#e2e8f0 0 25%,#cbd5e1 0 50%) 0/10px 10px}
+.st-thumb .st-remove{position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:#ef4444;color:#fff;border:none;font-size:12px;line-height:20px;cursor:pointer;padding:0}
+.st-thumb input[type=number]{width:48px;text-align:center;background:rgba(255,255,255,0.05);border:1px solid var(--c-border);color:var(--c-text);border-radius:6px;padding:3px;font-family:inherit;font-size:.72rem}
+.st-thumb .st-qty-label{font-size:.6rem;color:var(--c-text3);text-transform:uppercase;letter-spacing:.03em}
+.st-status{font-size:.78rem;color:var(--c-text2);text-align:center;max-width:700px;min-height:18px}
+.st-sheets{display:flex;flex-direction:column;align-items:center;gap:26px;width:100%}
+.st-sheet-block{display:flex;flex-direction:column;align-items:center;gap:8px}
+.st-sheet-label{font-size:.75rem;color:var(--c-text3)}
+.st-sheet{width:210mm;height:297mm;background:#fff;box-shadow:var(--shadow-lg);display:grid;box-sizing:border-box}
+.st-cell{display:flex;align-items:center;justify-content:center;overflow:hidden}
+.st-cell img{max-width:100%;max-height:100%;object-fit:contain}
+.st-sheet-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+
 /* Footer & Toast */
 footer{text-align:center;padding:24px;color:var(--c-text3);font-size:.8125rem;border-top:1px solid var(--c-border);background:rgba(15,23,42,0.5)}
 .toast{position:fixed;bottom:24px;right:24px;background:var(--c-surface-solid);color:#fff;padding:12px 22px;border-radius:var(--r-sm);box-shadow:var(--shadow-lg);font-size:.875rem;font-weight:500;transform:translateY(80px);opacity:0;transition:all .35s cubic-bezier(.4,0,.2,1);z-index:2000;pointer-events:none;border:1px solid var(--c-border);backdrop-filter:blur(12px)}
@@ -287,6 +305,14 @@ footer{text-align:center;padding:24px;color:var(--c-text3);font-size:.8125rem;bo
   body.viewing-passport #pp-print-sheet{display:grid!important;box-shadow:none!important;margin:0 auto!important;border:none!important;page-break-inside:avoid!important;page-break-after:avoid!important;page:4R}
   body.viewing-passport .photo-slot{border:.3mm solid #000!important;background:#fff!important}
   body.viewing-passport .photo-slot img{width:100%!important;height:100%!important;object-fit:cover!important}
+  body.viewing-stickers #stickers{display:block!important}
+  body.viewing-photos #stickers,body.viewing-polaroid #stickers,body.viewing-passport #stickers,
+  body.viewing-stickers #id-print,body.viewing-stickers #photos,body.viewing-stickers #polaroid,body.viewing-stickers #passport{display:none!important}
+  body.viewing-stickers .st-wrapper{margin:0!important;padding:0!important;display:block!important;background:#fff!important}
+  body.viewing-stickers .st-toolbar,body.viewing-stickers .st-tray,body.viewing-stickers .st-status{display:none!important}
+  body.viewing-stickers .st-sheet-block{page-break-after:always!important;margin:0!important}
+  body.viewing-stickers .st-sheet-block:last-child{page-break-after:auto!important}
+  body.viewing-stickers .st-sheet{box-shadow:none!important;margin:0 auto!important;page-break-inside:avoid!important;page:A4}
   @page 4R{size:4in 6in;margin:0}@page 5R{size:5in 7in;margin:0}@page A4{size:A4;margin:0}
   html,body{margin:0!important;padding:0!important;width:100%!important;height:100%!important}
   .photo-sheet{transform-origin:top left!important}
@@ -327,6 +353,7 @@ footer{text-align:center;padding:24px;color:var(--c-text3);font-size:.8125rem;bo
       <button class="nav-btn" data-tab="polaroid">Polaroid</button>
       <button class="nav-btn" data-tab="photos">Photos</button>
       <button class="nav-btn" data-tab="passport">Passport Photo</button>
+      <button class="nav-btn" data-tab="stickers">Stickers</button>
     </nav>
   </div>
 </header>
@@ -564,6 +591,54 @@ footer{text-align:center;padding:24px;color:var(--c-text3);font-size:.8125rem;bo
   </div>
 </section>
 
+<!-- STICKER SHEET MAKER -->
+<section id="stickers" class="tool-section">
+  <div class="st-wrapper">
+    <div class="st-toolbar glass no-print">
+      <button class="btn btn-accent" id="st-upload-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Upload Images
+      </button>
+      <input id="st-file" type="file" accept="image/*" multiple style="display:none">
+      <div class="toolbar-divider"></div>
+      <div class="pp-field">
+        <label>Sticker Size</label>
+        <select id="st-size">
+          <option value="25">Small (1 in / 25mm)</option>
+          <option value="38" selected>Medium (1.5 in / 38mm)</option>
+          <option value="51">Large (2 in / 51mm)</option>
+          <option value="76">XL (3 in / 76mm)</option>
+          <option value="custom">Custom…</option>
+        </select>
+      </div>
+      <div class="pp-field pp-custom-size hidden-pp" id="st-custom-wrap">
+        <label style="width:100%">Custom size (mm)</label>
+        <input id="st-custom-size" type="number" min="10" max="200" value="38">
+      </div>
+      <div class="pp-field">
+        <label>Layout Mode</label>
+        <select id="st-mode">
+          <option value="fit-one">Fit all on one sheet</option>
+          <option value="per-sheet">Set count per sheet</option>
+          <option value="num-sheets">Set number of sheets</option>
+        </select>
+      </div>
+      <div class="pp-field hidden-pp" id="st-count-wrap">
+        <label id="st-count-label">Stickers per sheet</label>
+        <input id="st-count" type="number" min="1" max="200" value="12">
+      </div>
+      <button class="btn btn-success" id="st-generate" disabled>Generate Sheets</button>
+      <button class="btn btn-ghost" id="st-print" disabled>Print All</button>
+      <button class="btn btn-danger" id="st-clear" disabled>Clear All</button>
+    </div>
+
+    <div class="st-tray no-print" id="st-tray"></div>
+    <div class="st-status no-print" id="st-status">Upload one or more sticker images to get started.</div>
+
+    <div class="st-sheets" id="st-sheets"></div>
+  </div>
+</section>
+
 </main>
 
 <footer><p>PrintStudio — Crafted for precise, hassle-free printing.</p></footer>
@@ -592,7 +667,7 @@ if('serviceWorker'in navigator){
 
 /* ===== INIT ===== */
 document.addEventListener('DOMContentLoaded',()=>{
-  initIDSlots();polaroidInitGrid();generateA430Slots();setupPhotoListeners();setupNav();setupIDButtons();setupPassport();setMode('a6');
+  initIDSlots();polaroidInitGrid();generateA430Slots();setupPhotoListeners();setupNav();setupIDButtons();setupPassport();setupStickers();setMode('a6');
 });
 
 /* ===== NAV ===== */
@@ -606,10 +681,11 @@ function switchTab(id){
   document.querySelector(`.nav-btn[data-tab="${id}"]`).classList.add('active');
   document.querySelectorAll('.tool-section').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  document.body.classList.remove('viewing-photos','viewing-polaroid','viewing-passport','mode-a6','mode-a4');
+  document.body.classList.remove('viewing-photos','viewing-polaroid','viewing-passport','viewing-stickers','mode-a6','mode-a4');
   if(id==='photos')document.body.classList.add('viewing-photos');
   else if(id==='polaroid')document.body.classList.add('viewing-polaroid');
   else if(id==='passport')document.body.classList.add('viewing-passport');
+  else if(id==='stickers')document.body.classList.add('viewing-stickers');
   else if(id==='id-print')setMode('a6');
   if(id==='photos')setTimeout(updateActivePrintSheet,50);
   if(id==='polaroid')setTimeout(()=>{const p=document.getElementById('polaroid-a4-paper');if(p)p.style.display='grid'},50);
@@ -1215,6 +1291,168 @@ function setupPassport(){
     const a=document.createElement('a');
     a.download=`passport-photo-${ppCountryData.n.replace(/[^a-z0-9]+/gi,'-').toLowerCase()}.png`;
     a.href=canvas.toDataURL('image/png');a.click();
+  });
+}
+
+/* ===== STICKER SHEET MAKER ===== */
+let stImages=[],stIdSeq=1;
+function stEl(id){return document.getElementById(id)}
+
+function stRenderTray(){
+  const tray=stEl('st-tray');tray.innerHTML='';
+  stImages.forEach(im=>{
+    const th=document.createElement('div');th.className='st-thumb';
+    const rm=document.createElement('button');rm.className='st-remove';rm.type='button';rm.textContent='×';
+    rm.addEventListener('click',()=>{
+      stImages=stImages.filter(x=>x.id!==im.id);
+      stRenderTray();
+      if(!stImages.length){stEl('st-generate').disabled=true;stEl('st-clear').disabled=true;stEl('st-status').textContent='Upload one or more sticker images to get started.'}
+    });
+    const img=document.createElement('img');img.src=im.url;img.alt='';
+    const qtyLabel=document.createElement('div');qtyLabel.className='st-qty-label';qtyLabel.textContent='Copies';
+    const qty=document.createElement('input');qty.type='number';qty.min='1';qty.max='99';qty.value=im.qty;
+    qty.addEventListener('input',()=>{im.qty=Math.max(1,parseInt(qty.value)||1)});
+    th.appendChild(rm);th.appendChild(img);th.appendChild(qtyLabel);th.appendChild(qty);
+    tray.appendChild(th);
+  });
+}
+
+function stGetSizeMM(){
+  const sel=stEl('st-size').value;
+  if(sel==='custom')return Math.max(10,(+stEl('st-custom-size').value)||38);
+  return +sel;
+}
+function stBuildInstances(){
+  const list=[];
+  stImages.forEach(im=>{
+    const q=Math.max(1,parseInt(im.qty)||1);
+    for(let i=0;i<q;i++)list.push(im);
+  });
+  return list;
+}
+// Finds the grid (cols x rows) that fits n square cells of maximum size into a usableW x usableH area.
+function stFitGrid(n,usableW,usableH,gap){
+  n=Math.max(1,n);let best=null;
+  for(let cols=1;cols<=n;cols++){
+    const rows=Math.ceil(n/cols);
+    const cellW=(usableW-(cols-1)*gap)/cols;
+    const cellH=(usableH-(rows-1)*gap)/rows;
+    const cell=Math.min(cellW,cellH);
+    if(cell<=0)continue;
+    if(!best||cell>best.cell)best={cols,rows,cell};
+  }
+  return best||{cols:1,rows:1,cell:Math.min(usableW,usableH)};
+}
+
+function stRenderSheet(items,sizeMM,marginMM,gapMM,usableW,idx,totalSheets){
+  const cols=Math.max(1,Math.floor((usableW+gapMM)/(sizeMM+gapMM)));
+  const block=document.createElement('div');block.className='st-sheet-block';
+  const label=document.createElement('div');label.className='st-sheet-label no-print';
+  label.textContent=`Sheet ${idx} of ${totalSheets} — ${items.length} sticker${items.length===1?'':'s'}`;
+  const sheet=document.createElement('div');sheet.className='st-sheet';
+  sheet.style.padding=marginMM+'mm';
+  sheet.style.gap=gapMM+'mm';
+  sheet.style.alignContent='start';
+  sheet.style.justifyContent='center';
+  sheet.style.gridTemplateColumns=`repeat(${cols},${sizeMM}mm)`;
+  items.forEach(im=>{
+    const cell=document.createElement('div');cell.className='st-cell';
+    cell.style.width=sizeMM+'mm';cell.style.height=sizeMM+'mm';
+    const img=document.createElement('img');img.src=im.url;img.alt='';
+    cell.appendChild(img);sheet.appendChild(cell);
+  });
+  const actions=document.createElement('div');actions.className='st-sheet-actions no-print';
+  const dlBtn=document.createElement('button');dlBtn.className='btn btn-ghost';dlBtn.type='button';dlBtn.textContent='Download PNG';
+  dlBtn.addEventListener('click',()=>{
+    showToast('Generating image…');
+    html2canvas(sheet,{scale:3,useCORS:true,backgroundColor:'#ffffff'}).then(canvas=>{
+      const a=document.createElement('a');a.download=`sticker-sheet-${idx}.png`;a.href=canvas.toDataURL('image/png');a.click();
+    }).catch(err=>showToast('Download failed: '+err.message));
+  });
+  actions.appendChild(dlBtn);
+  block.appendChild(label);block.appendChild(sheet);block.appendChild(actions);
+  stEl('st-sheets').appendChild(block);
+}
+
+function stGenerate(){
+  if(!stImages.length){showToast('Upload some sticker images first.');return}
+  const instances=stBuildInstances();
+  const total=instances.length;
+  const mode=stEl('st-mode').value;
+  const marginMM=6,gapMM=2;
+  const usableW=210-marginMM*2,usableH=297-marginMM*2;
+  let sizeMM=stGetSizeMM();
+  stEl('st-sheets').innerHTML='';
+  let statusMsg='';
+
+  if(mode==='fit-one'){
+    const fit=stFitGrid(total,usableW,usableH,gapMM);
+    sizeMM=Math.min(sizeMM,fit.cell);
+    stRenderSheet(instances,sizeMM,marginMM,gapMM,usableW,1,1);
+    statusMsg=`Fit all ${total} sticker${total===1?'':'s'} on 1 sheet at ${sizeMM.toFixed(1)}mm each.`;
+  }else{
+    const cols=Math.max(1,Math.floor((usableW+gapMM)/(sizeMM+gapMM)));
+    const rows=Math.max(1,Math.floor((usableH+gapMM)/(sizeMM+gapMM)));
+    const cap=Math.max(1,cols*rows);
+    let perSheet;
+    if(mode==='per-sheet'){
+      perSheet=Math.max(1,parseInt(stEl('st-count').value)||1);
+      if(perSheet>cap){
+        statusMsg=`Only ${cap} stickers fit per sheet at ${sizeMM}mm (reduced from ${perSheet}). `;
+        perSheet=cap;
+      }
+    }else{
+      const numSheetsWanted=Math.max(1,parseInt(stEl('st-count').value)||1);
+      perSheet=Math.ceil(total/numSheetsWanted);
+      if(perSheet>cap){
+        statusMsg=`${sizeMM}mm stickers only fit ${cap} per sheet, so you'll get more than ${numSheetsWanted} sheet(s). `;
+        perSheet=cap;
+      }
+    }
+    const numSheetsActual=Math.ceil(total/perSheet);
+    for(let s=0;s<numSheetsActual;s++){
+      const chunk=instances.slice(s*perSheet,(s+1)*perSheet);
+      stRenderSheet(chunk,sizeMM,marginMM,gapMM,usableW,s+1,numSheetsActual);
+    }
+    statusMsg+=`${total} sticker${total===1?'':'s'} across ${numSheetsActual} sheet${numSheetsActual===1?'':'s'}, up to ${perSheet} per sheet.`;
+  }
+  stEl('st-status').textContent=statusMsg;
+  stEl('st-print').disabled=false;
+  stEl('st-sheets').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function setupStickers(){
+  stEl('st-upload-btn').addEventListener('click',()=>stEl('st-file').click());
+  stEl('st-file').addEventListener('change',e=>{
+    const files=Array.from(e.target.files||[]);
+    if(!files.length)return;
+    Promise.all(files.map(f=>readFileAsUrl(f))).then(urls=>{
+      urls.forEach(url=>stImages.push({id:'st'+(stIdSeq++),url,qty:1}));
+      stRenderTray();
+      stEl('st-generate').disabled=false;stEl('st-clear').disabled=false;
+      stEl('st-status').textContent=`${stImages.length} image(s) ready — set your layout options and hit Generate.`;
+    });
+    e.target.value='';
+  });
+
+  stEl('st-size').addEventListener('change',()=>{
+    stEl('st-custom-wrap').classList.toggle('hidden-pp',stEl('st-size').value!=='custom');
+  });
+  stEl('st-mode').addEventListener('change',()=>{
+    const mode=stEl('st-mode').value;
+    stEl('st-count-wrap').classList.toggle('hidden-pp',mode==='fit-one');
+    stEl('st-count-label').textContent=mode==='per-sheet'?'Stickers per sheet':'Number of sheets';
+  });
+
+  stEl('st-generate').addEventListener('click',stGenerate);
+  stEl('st-print').addEventListener('click',()=>{
+    if(!stEl('st-sheets').children.length){showToast('Generate a sheet first.');return}
+    window.print();
+  });
+  stEl('st-clear').addEventListener('click',()=>{
+    stImages=[];stRenderTray();stEl('st-sheets').innerHTML='';
+    stEl('st-generate').disabled=true;stEl('st-clear').disabled=true;stEl('st-print').disabled=true;
+    stEl('st-status').textContent='Upload one or more sticker images to get started.';
   });
 }
 </script>
