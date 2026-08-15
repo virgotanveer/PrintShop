@@ -1347,36 +1347,71 @@ function stBuildInstances(){
   return list;
 }
 
-/* Shelf (row) packing: places items left-to-right, wrapping rows, at each item's own size.
-   Returns {placed:[{url,size,x,y}], overflowIndex} where overflowIndex is the first item
-   that didn't fit within usableH (null if everything fit). */
-function stShelfLayout(items,usableW,usableH,gap){
-  let x=0,y=0,rowH=0;
+/* Does free-rect a fully contain free-rect b? Used to prune redundant rects. */
+function stRectContains(a,b){
+  return b.x>=a.x-0.001&&b.y>=a.y-0.001&&b.x+b.w<=a.x+a.w+0.001&&b.y+b.h<=a.y+a.h+0.001;
+}
+
+/* Guillotine bin-packing: places each (square) item into the smallest free rectangle
+   it fits in (Best Area Fit), then splits that rectangle around the item so the
+   leftover space stays usable for later — smaller items backfill gaps left by
+   larger ones instead of each item claiming a full-height/width row.
+   Returns {placed:[{url,size,x,y}], overflowIndex} (overflowIndex null if all placed). */
+function stGuillotinePack(items,usableW,usableH,gap){
+  let freeRects=[{x:0,y:0,w:usableW,h:usableH}];
   const placed=[];
   for(let i=0;i<items.length;i++){
-    const sz=items[i].size;
-    if(x>0&&x+sz>usableW){x=0;y+=rowH+gap;rowH=0}
-    if(y+sz>usableH)return{placed,overflowIndex:i};
-    placed.push({url:items[i].url,size:sz,x,y});
-    x+=sz+gap;rowH=Math.max(rowH,sz);
+    const s=items[i].size;
+    let bestIdx=-1,bestArea=Infinity;
+    for(let f=0;f<freeRects.length;f++){
+      const r=freeRects[f];
+      if(r.w>=s&&r.h>=s){
+        const area=r.w*r.h;
+        if(area<bestArea){bestArea=area;bestIdx=f}
+      }
+    }
+    if(bestIdx===-1)return{placed,overflowIndex:i};
+    const r=freeRects[bestIdx];
+    const x=r.x,y=r.y;
+    placed.push({url:items[i].url,size:s,x,y});
+    freeRects.splice(bestIdx,1);
+    const consumedW=Math.min(r.w,s+gap);
+    const consumedH=Math.min(r.h,s+gap);
+    const leftoverW=r.w-consumedW,leftoverH=r.h-consumedH;
+    if(leftoverW>0.01&&leftoverH>0.01){
+      if(leftoverW<=leftoverH){
+        freeRects.push({x:x+consumedW,y:y,w:leftoverW,h:consumedH});
+        freeRects.push({x:x,y:y+consumedH,w:r.w,h:leftoverH});
+      }else{
+        freeRects.push({x:x,y:y+consumedH,w:consumedW,h:leftoverH});
+        freeRects.push({x:x+consumedW,y:y,w:leftoverW,h:r.h});
+      }
+    }else if(leftoverW>0.01){
+      freeRects.push({x:x+consumedW,y:y,w:leftoverW,h:r.h});
+    }else if(leftoverH>0.01){
+      freeRects.push({x:x,y:y+consumedH,w:r.w,h:leftoverH});
+    }
+    freeRects=freeRects.filter((a,ai)=>!freeRects.some((b,bi)=>ai!==bi&&stRectContains(b,a)));
   }
   return{placed,overflowIndex:null};
 }
 
 /* Lays out a chunk of items on one page, shrinking all sizes uniformly (preserving
-   relative proportions) only as much as needed for everything to fit. */
+   relative proportions) only as much as needed for everything to fit. Items are
+   packed largest-first so smaller stickers naturally fill the gaps around big ones. */
 function stFitChunkToPage(items,usableW,usableH,gap){
-  let layout=stShelfLayout(items,usableW,usableH,gap);
+  const sorted=[...items].sort((a,b)=>b.size-a.size);
+  let layout=stGuillotinePack(sorted,usableW,usableH,gap);
   if(layout.overflowIndex===null)return{layout,scale:1};
   let lo=0.05,hi=1;
   for(let iter=0;iter<24;iter++){
     const mid=(lo+hi)/2;
-    const scaled=items.map(it=>({url:it.url,size:it.size*mid}));
-    const test=stShelfLayout(scaled,usableW,usableH,gap);
+    const scaled=sorted.map(it=>({url:it.url,size:it.size*mid}));
+    const test=stGuillotinePack(scaled,usableW,usableH,gap);
     if(test.overflowIndex===null)lo=mid;else hi=mid;
   }
-  const scaledFinal=items.map(it=>({url:it.url,size:it.size*lo}));
-  layout=stShelfLayout(scaledFinal,usableW,usableH,gap);
+  const scaledFinal=sorted.map(it=>({url:it.url,size:it.size*lo}));
+  layout=stGuillotinePack(scaledFinal,usableW,usableH,gap);
   return{layout,scale:lo};
 }
 
