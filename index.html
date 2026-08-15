@@ -228,16 +228,17 @@ body.mode-a4 .a4-only{display:flex}
 .st-wrapper{max-width:1100px;margin:0 auto;padding:24px 16px 80px;display:flex;flex-direction:column;gap:16px;align-items:center}
 .st-toolbar{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;padding:14px 20px;border-radius:var(--r);width:100%;max-width:900px}
 .st-tray{display:flex;flex-wrap:wrap;gap:10px;width:100%;max-width:900px;justify-content:center}
-.st-thumb{position:relative;width:84px;background:rgba(255,255,255,0.04);border:1px solid var(--c-border);border-radius:10px;padding:8px 6px 6px;display:flex;flex-direction:column;align-items:center;gap:4px}
+.st-thumb{position:relative;width:92px;background:rgba(255,255,255,0.04);border:1px solid var(--c-border);border-radius:10px;padding:8px 6px 6px;display:flex;flex-direction:column;align-items:center;gap:4px}
 .st-thumb img{width:64px;height:64px;object-fit:contain;border-radius:6px;background:repeating-conic-gradient(#e2e8f0 0 25%,#cbd5e1 0 50%) 0/10px 10px}
 .st-thumb .st-remove{position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:#ef4444;color:#fff;border:none;font-size:12px;line-height:20px;cursor:pointer;padding:0}
-.st-thumb input[type=number]{width:48px;text-align:center;background:rgba(255,255,255,0.05);border:1px solid var(--c-border);color:var(--c-text);border-radius:6px;padding:3px;font-family:inherit;font-size:.72rem}
+.st-thumb-fields{display:flex;gap:6px}
+.st-thumb input[type=number]{width:44px;text-align:center;background:rgba(255,255,255,0.05);border:1px solid var(--c-border);color:var(--c-text);border-radius:6px;padding:3px;font-family:inherit;font-size:.72rem}
 .st-thumb .st-qty-label{font-size:.6rem;color:var(--c-text3);text-transform:uppercase;letter-spacing:.03em}
 .st-status{font-size:.78rem;color:var(--c-text2);text-align:center;max-width:700px;min-height:18px}
 .st-sheets{display:flex;flex-direction:column;align-items:center;gap:26px;width:100%}
 .st-sheet-block{display:flex;flex-direction:column;align-items:center;gap:8px}
 .st-sheet-label{font-size:.75rem;color:var(--c-text3)}
-.st-sheet{width:210mm;height:297mm;background:#fff;box-shadow:var(--shadow-lg);display:grid;box-sizing:border-box}
+.st-sheet{width:210mm;height:297mm;background:#fff;box-shadow:var(--shadow-lg);position:relative;box-sizing:border-box}
 .st-cell{display:flex;align-items:center;justify-content:center;overflow:hidden}
 .st-cell img{max-width:100%;max-height:100%;object-fit:contain}
 .st-sheet-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
@@ -602,7 +603,7 @@ footer{text-align:center;padding:24px;color:var(--c-text3);font-size:.8125rem;bo
       <input id="st-file" type="file" accept="image/*" multiple style="display:none">
       <div class="toolbar-divider"></div>
       <div class="pp-field">
-        <label>Sticker Size</label>
+        <label>Default Size</label>
         <select id="st-size">
           <option value="25">Small (1 in / 25mm)</option>
           <option value="38" selected>Medium (1.5 in / 38mm)</option>
@@ -615,6 +616,8 @@ footer{text-align:center;padding:24px;color:var(--c-text3);font-size:.8125rem;bo
         <label style="width:100%">Custom size (mm)</label>
         <input id="st-custom-size" type="number" min="10" max="200" value="38">
       </div>
+      <button class="btn btn-ghost" id="st-apply-size" disabled>Apply Size to All</button>
+      <div class="toolbar-divider"></div>
       <div class="pp-field">
         <label>Layout Mode</label>
         <select id="st-mode">
@@ -633,7 +636,7 @@ footer{text-align:center;padding:24px;color:var(--c-text3);font-size:.8125rem;bo
     </div>
 
     <div class="st-tray no-print" id="st-tray"></div>
-    <div class="st-status no-print" id="st-status">Upload one or more sticker images to get started.</div>
+    <div class="st-status no-print" id="st-status">Upload one or more sticker images, then adjust each one's size individually below if needed.</div>
 
     <div class="st-sheets" id="st-sheets"></div>
   </div>
@@ -1306,13 +1309,25 @@ function stRenderTray(){
     rm.addEventListener('click',()=>{
       stImages=stImages.filter(x=>x.id!==im.id);
       stRenderTray();
-      if(!stImages.length){stEl('st-generate').disabled=true;stEl('st-clear').disabled=true;stEl('st-status').textContent='Upload one or more sticker images to get started.'}
+      if(!stImages.length){stEl('st-generate').disabled=true;stEl('st-clear').disabled=true;stEl('st-apply-size').disabled=true;stEl('st-status').textContent='Upload one or more sticker images to get started.'}
     });
     const img=document.createElement('img');img.src=im.url;img.alt='';
+    const fields=document.createElement('div');fields.className='st-thumb-fields';
+
+    const qtyCol=document.createElement('div');
     const qtyLabel=document.createElement('div');qtyLabel.className='st-qty-label';qtyLabel.textContent='Copies';
     const qty=document.createElement('input');qty.type='number';qty.min='1';qty.max='99';qty.value=im.qty;
     qty.addEventListener('input',()=>{im.qty=Math.max(1,parseInt(qty.value)||1)});
-    th.appendChild(rm);th.appendChild(img);th.appendChild(qtyLabel);th.appendChild(qty);
+    qtyCol.appendChild(qtyLabel);qtyCol.appendChild(qty);
+
+    const sizeCol=document.createElement('div');
+    const sizeLabel=document.createElement('div');sizeLabel.className='st-qty-label';sizeLabel.textContent='Size mm';
+    const size=document.createElement('input');size.type='number';size.min='8';size.max='200';size.value=im.size;
+    size.addEventListener('input',()=>{im.size=Math.max(8,(+size.value)||im.size)});
+    sizeCol.appendChild(sizeLabel);sizeCol.appendChild(size);
+
+    fields.appendChild(qtyCol);fields.appendChild(sizeCol);
+    th.appendChild(rm);th.appendChild(img);th.appendChild(fields);
     tray.appendChild(th);
   });
 }
@@ -1326,39 +1341,58 @@ function stBuildInstances(){
   const list=[];
   stImages.forEach(im=>{
     const q=Math.max(1,parseInt(im.qty)||1);
-    for(let i=0;i<q;i++)list.push(im);
+    const sz=Math.max(8,(+im.size)||38);
+    for(let i=0;i<q;i++)list.push({url:im.url,size:sz});
   });
   return list;
 }
-// Finds the grid (cols x rows) that fits n square cells of maximum size into a usableW x usableH area.
-function stFitGrid(n,usableW,usableH,gap){
-  n=Math.max(1,n);let best=null;
-  for(let cols=1;cols<=n;cols++){
-    const rows=Math.ceil(n/cols);
-    const cellW=(usableW-(cols-1)*gap)/cols;
-    const cellH=(usableH-(rows-1)*gap)/rows;
-    const cell=Math.min(cellW,cellH);
-    if(cell<=0)continue;
-    if(!best||cell>best.cell)best={cols,rows,cell};
+
+/* Shelf (row) packing: places items left-to-right, wrapping rows, at each item's own size.
+   Returns {placed:[{url,size,x,y}], overflowIndex} where overflowIndex is the first item
+   that didn't fit within usableH (null if everything fit). */
+function stShelfLayout(items,usableW,usableH,gap){
+  let x=0,y=0,rowH=0;
+  const placed=[];
+  for(let i=0;i<items.length;i++){
+    const sz=items[i].size;
+    if(x>0&&x+sz>usableW){x=0;y+=rowH+gap;rowH=0}
+    if(y+sz>usableH)return{placed,overflowIndex:i};
+    placed.push({url:items[i].url,size:sz,x,y});
+    x+=sz+gap;rowH=Math.max(rowH,sz);
   }
-  return best||{cols:1,rows:1,cell:Math.min(usableW,usableH)};
+  return{placed,overflowIndex:null};
 }
 
-function stRenderSheet(items,sizeMM,marginMM,gapMM,usableW,idx,totalSheets){
-  const cols=Math.max(1,Math.floor((usableW+gapMM)/(sizeMM+gapMM)));
+/* Lays out a chunk of items on one page, shrinking all sizes uniformly (preserving
+   relative proportions) only as much as needed for everything to fit. */
+function stFitChunkToPage(items,usableW,usableH,gap){
+  let layout=stShelfLayout(items,usableW,usableH,gap);
+  if(layout.overflowIndex===null)return{layout,scale:1};
+  let lo=0.05,hi=1;
+  for(let iter=0;iter<24;iter++){
+    const mid=(lo+hi)/2;
+    const scaled=items.map(it=>({url:it.url,size:it.size*mid}));
+    const test=stShelfLayout(scaled,usableW,usableH,gap);
+    if(test.overflowIndex===null)lo=mid;else hi=mid;
+  }
+  const scaledFinal=items.map(it=>({url:it.url,size:it.size*lo}));
+  layout=stShelfLayout(scaledFinal,usableW,usableH,gap);
+  return{layout,scale:lo};
+}
+
+function stRenderSheet(layout,marginMM,idx,totalSheets,scale){
   const block=document.createElement('div');block.className='st-sheet-block';
   const label=document.createElement('div');label.className='st-sheet-label no-print';
-  label.textContent=`Sheet ${idx} of ${totalSheets} — ${items.length} sticker${items.length===1?'':'s'}`;
-  const sheet=document.createElement('div');sheet.className='st-sheet';
+  const n=layout.placed.length;
+  label.textContent=`Sheet ${idx} of ${totalSheets} — ${n} sticker${n===1?'':'s'}`+(scale<0.999?` (scaled to ${Math.round(scale*100)}% to fit)`:'');
+  const sheet=document.createElement('div');sheet.className='st-sheet';sheet.style.position='relative';
   sheet.style.padding=marginMM+'mm';
-  sheet.style.gap=gapMM+'mm';
-  sheet.style.alignContent='start';
-  sheet.style.justifyContent='center';
-  sheet.style.gridTemplateColumns=`repeat(${cols},${sizeMM}mm)`;
-  items.forEach(im=>{
+  layout.placed.forEach(p=>{
     const cell=document.createElement('div');cell.className='st-cell';
-    cell.style.width=sizeMM+'mm';cell.style.height=sizeMM+'mm';
-    const img=document.createElement('img');img.src=im.url;img.alt='';
+    cell.style.position='absolute';
+    cell.style.left=p.x+'mm';cell.style.top=p.y+'mm';
+    cell.style.width=p.size+'mm';cell.style.height=p.size+'mm';
+    const img=document.createElement('img');img.src=p.url;img.alt='';
     cell.appendChild(img);sheet.appendChild(cell);
   });
   const actions=document.createElement('div');actions.className='st-sheet-actions no-print';
@@ -1381,41 +1415,33 @@ function stGenerate(){
   const mode=stEl('st-mode').value;
   const marginMM=6,gapMM=2;
   const usableW=210-marginMM*2,usableH=297-marginMM*2;
-  let sizeMM=stGetSizeMM();
   stEl('st-sheets').innerHTML='';
-  let statusMsg='';
+  let statusMsg='',anyScaled=false;
 
+  let chunks;
   if(mode==='fit-one'){
-    const fit=stFitGrid(total,usableW,usableH,gapMM);
-    sizeMM=Math.min(sizeMM,fit.cell);
-    stRenderSheet(instances,sizeMM,marginMM,gapMM,usableW,1,1);
-    statusMsg=`Fit all ${total} sticker${total===1?'':'s'} on 1 sheet at ${sizeMM.toFixed(1)}mm each.`;
+    chunks=[instances];
+  }else if(mode==='per-sheet'){
+    const perSheet=Math.max(1,parseInt(stEl('st-count').value)||1);
+    chunks=[];
+    for(let i=0;i<total;i+=perSheet)chunks.push(instances.slice(i,i+perSheet));
+    if(!chunks.length)chunks=[[]];
   }else{
-    const cols=Math.max(1,Math.floor((usableW+gapMM)/(sizeMM+gapMM)));
-    const rows=Math.max(1,Math.floor((usableH+gapMM)/(sizeMM+gapMM)));
-    const cap=Math.max(1,cols*rows);
-    let perSheet;
-    if(mode==='per-sheet'){
-      perSheet=Math.max(1,parseInt(stEl('st-count').value)||1);
-      if(perSheet>cap){
-        statusMsg=`Only ${cap} stickers fit per sheet at ${sizeMM}mm (reduced from ${perSheet}). `;
-        perSheet=cap;
-      }
-    }else{
-      const numSheetsWanted=Math.max(1,parseInt(stEl('st-count').value)||1);
-      perSheet=Math.ceil(total/numSheetsWanted);
-      if(perSheet>cap){
-        statusMsg=`${sizeMM}mm stickers only fit ${cap} per sheet, so you'll get more than ${numSheetsWanted} sheet(s). `;
-        perSheet=cap;
-      }
-    }
-    const numSheetsActual=Math.ceil(total/perSheet);
-    for(let s=0;s<numSheetsActual;s++){
-      const chunk=instances.slice(s*perSheet,(s+1)*perSheet);
-      stRenderSheet(chunk,sizeMM,marginMM,gapMM,usableW,s+1,numSheetsActual);
-    }
-    statusMsg+=`${total} sticker${total===1?'':'s'} across ${numSheetsActual} sheet${numSheetsActual===1?'':'s'}, up to ${perSheet} per sheet.`;
+    const numSheetsWanted=Math.max(1,parseInt(stEl('st-count').value)||1);
+    const perSheet=Math.max(1,Math.ceil(total/numSheetsWanted));
+    chunks=[];
+    for(let i=0;i<total;i+=perSheet)chunks.push(instances.slice(i,i+perSheet));
+    if(!chunks.length)chunks=[[]];
   }
+
+  chunks.forEach((chunk,i)=>{
+    const {layout,scale}=stFitChunkToPage(chunk,usableW,usableH,gapMM);
+    if(scale<0.999)anyScaled=true;
+    stRenderSheet(layout,marginMM,i+1,chunks.length,scale);
+  });
+
+  statusMsg=`${total} sticker${total===1?'':'s'} laid out across ${chunks.length} sheet${chunks.length===1?'':'s'}.`;
+  if(anyScaled)statusMsg+=' Some sheets were scaled down slightly so everything fits — check the label under each sheet.';
   stEl('st-status').textContent=statusMsg;
   stEl('st-print').disabled=false;
   stEl('st-sheets').scrollIntoView({behavior:'smooth',block:'start'});
@@ -1427,16 +1453,24 @@ function setupStickers(){
     const files=Array.from(e.target.files||[]);
     if(!files.length)return;
     Promise.all(files.map(f=>readFileAsUrl(f))).then(urls=>{
-      urls.forEach(url=>stImages.push({id:'st'+(stIdSeq++),url,qty:1}));
+      const defSize=stGetSizeMM();
+      urls.forEach(url=>stImages.push({id:'st'+(stIdSeq++),url,qty:1,size:defSize}));
       stRenderTray();
-      stEl('st-generate').disabled=false;stEl('st-clear').disabled=false;
-      stEl('st-status').textContent=`${stImages.length} image(s) ready — set your layout options and hit Generate.`;
+      stEl('st-generate').disabled=false;stEl('st-clear').disabled=false;stEl('st-apply-size').disabled=false;
+      stEl('st-status').textContent=`${stImages.length} image(s) ready — resize any of them below, then hit Generate.`;
     });
     e.target.value='';
   });
 
   stEl('st-size').addEventListener('change',()=>{
     stEl('st-custom-wrap').classList.toggle('hidden-pp',stEl('st-size').value!=='custom');
+  });
+  stEl('st-apply-size').addEventListener('click',()=>{
+    if(!stImages.length)return;
+    const sz=stGetSizeMM();
+    stImages.forEach(im=>im.size=sz);
+    stRenderTray();
+    showToast(`All stickers set to ${sz}mm.`);
   });
   stEl('st-mode').addEventListener('change',()=>{
     const mode=stEl('st-mode').value;
@@ -1451,7 +1485,7 @@ function setupStickers(){
   });
   stEl('st-clear').addEventListener('click',()=>{
     stImages=[];stRenderTray();stEl('st-sheets').innerHTML='';
-    stEl('st-generate').disabled=true;stEl('st-clear').disabled=true;stEl('st-print').disabled=true;
+    stEl('st-generate').disabled=true;stEl('st-clear').disabled=true;stEl('st-print').disabled=true;stEl('st-apply-size').disabled=true;
     stEl('st-status').textContent='Upload one or more sticker images to get started.';
   });
 }
