@@ -238,8 +238,12 @@ body.mode-a4 .a4-only{display:flex}
 .st-sheets{display:flex;flex-direction:column;align-items:center;gap:26px;width:100%}
 .st-sheet-block{display:flex;flex-direction:column;align-items:center;gap:8px}
 .st-sheet-label{font-size:.75rem;color:var(--c-text3)}
-.st-sheet{width:210mm;height:297mm;background:#fff;box-shadow:var(--shadow-lg);position:relative;box-sizing:border-box}
-.st-cell{display:flex;align-items:center;justify-content:center;overflow:hidden}
+.st-sheet{width:210mm;height:297mm;background:#fff;box-shadow:var(--shadow-lg);position:relative;box-sizing:border-box;overflow:hidden}
+.st-cell{display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:move;touch-action:none}
+.st-cell:hover{outline:1px dashed rgba(99,102,241,.65);outline-offset:2px}
+.st-cell.st-dragging{outline:1.5px solid var(--c-accent2)!important}
+.st-handle{position:absolute;right:-6px;bottom:-6px;width:14px;height:14px;background:var(--c-accent2);border:2px solid #fff;border-radius:50%;cursor:nwse-resize;touch-action:none;opacity:0;transition:opacity .15s}
+.st-cell:hover .st-handle{opacity:1}
 .st-cell img{max-width:100%;max-height:100%;object-fit:contain}
 .st-sheet-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
 
@@ -1415,11 +1419,64 @@ function stFitChunkToPage(items,usableW,usableH,gap){
   return{layout,scale:lo};
 }
 
+let stZTop=10;
+/* Makes a placed sticker cell draggable (move) and gives it a corner handle (resize),
+   both in physical mm units so it stays accurate regardless of on-screen zoom. */
+function stMakeCellInteractive(cell,sheet){
+  cell.style.zIndex=1;
+  const handle=document.createElement('div');handle.className='st-handle no-print';
+  cell.appendChild(handle);
+
+  function mmPerPx(){return 210/sheet.getBoundingClientRect().width}
+
+  cell.addEventListener('pointerdown',e=>{
+    if(e.target===handle)return;
+    e.preventDefault();
+    cell.setPointerCapture(e.pointerId);
+    cell.classList.add('st-dragging');
+    cell.style.zIndex=++stZTop;
+    const startX=e.clientX,startY=e.clientY;
+    const startLeft=parseFloat(cell.style.left),startTop=parseFloat(cell.style.top);
+    const factor=mmPerPx();
+    const onMove=ev=>{
+      cell.style.left=(startLeft+(ev.clientX-startX)*factor)+'mm';
+      cell.style.top=(startTop+(ev.clientY-startY)*factor)+'mm';
+    };
+    const onUp=()=>{
+      cell.classList.remove('st-dragging');
+      cell.removeEventListener('pointermove',onMove);
+      cell.removeEventListener('pointerup',onUp);
+    };
+    cell.addEventListener('pointermove',onMove);
+    cell.addEventListener('pointerup',onUp);
+  });
+
+  handle.addEventListener('pointerdown',e=>{
+    e.preventDefault();e.stopPropagation();
+    handle.setPointerCapture(e.pointerId);
+    cell.style.zIndex=++stZTop;
+    const startX=e.clientX,startY=e.clientY;
+    const startSize=parseFloat(cell.style.width);
+    const factor=mmPerPx();
+    const onMove=ev=>{
+      const d=((ev.clientX-startX)+(ev.clientY-startY))/2*factor;
+      const newSize=Math.max(6,startSize+d);
+      cell.style.width=newSize+'mm';cell.style.height=newSize+'mm';
+    };
+    const onUp=()=>{
+      handle.removeEventListener('pointermove',onMove);
+      handle.removeEventListener('pointerup',onUp);
+    };
+    handle.addEventListener('pointermove',onMove);
+    handle.addEventListener('pointerup',onUp);
+  });
+}
+
 function stRenderSheet(layout,marginMM,idx,totalSheets,scale){
   const block=document.createElement('div');block.className='st-sheet-block';
   const label=document.createElement('div');label.className='st-sheet-label no-print';
   const n=layout.placed.length;
-  label.textContent=`Sheet ${idx} of ${totalSheets} — ${n} sticker${n===1?'':'s'}`+(scale<0.999?` (scaled to ${Math.round(scale*100)}% to fit)`:'');
+  label.textContent=`Sheet ${idx} of ${totalSheets} — ${n} sticker${n===1?'':'s'}`+(scale<0.999?` (scaled to ${Math.round(scale*100)}% to fit)`:'')+'. Drag a sticker to move it, or its corner dot to resize.';
   const sheet=document.createElement('div');sheet.className='st-sheet';sheet.style.position='relative';
   sheet.style.padding=marginMM+'mm';
   layout.placed.forEach(p=>{
@@ -1427,14 +1484,18 @@ function stRenderSheet(layout,marginMM,idx,totalSheets,scale){
     cell.style.position='absolute';
     cell.style.left=p.x+'mm';cell.style.top=p.y+'mm';
     cell.style.width=p.size+'mm';cell.style.height=p.size+'mm';
-    const img=document.createElement('img');img.src=p.url;img.alt='';
+    const img=document.createElement('img');img.src=p.url;img.alt='';img.draggable=false;
     cell.appendChild(img);sheet.appendChild(cell);
+    stMakeCellInteractive(cell,sheet);
   });
   const actions=document.createElement('div');actions.className='st-sheet-actions no-print';
   const dlBtn=document.createElement('button');dlBtn.className='btn btn-ghost';dlBtn.type='button';dlBtn.textContent='Download PNG';
   dlBtn.addEventListener('click',()=>{
     showToast('Generating image…');
-    html2canvas(sheet,{scale:3,useCORS:true,backgroundColor:'#ffffff'}).then(canvas=>{
+    html2canvas(sheet,{scale:3,useCORS:true,backgroundColor:'#ffffff',onclone:doc=>{
+      doc.querySelectorAll('.st-handle').forEach(h=>h.remove());
+      doc.querySelectorAll('.st-cell').forEach(c=>{c.style.outline='none'});
+    }}).then(canvas=>{
       const a=document.createElement('a');a.download=`sticker-sheet-${idx}.png`;a.href=canvas.toDataURL('image/png');a.click();
     }).catch(err=>showToast('Download failed: '+err.message));
   });
