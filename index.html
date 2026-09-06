@@ -878,6 +878,99 @@ document.getElementById('polaroid-bulk').addEventListener('click',polaroidBulkAd
 document.getElementById('polaroid-repeat').addEventListener('click',polaroidRepeatImage);
 
 /* ===== PHOTOS ===== */
+/* html2canvas's "scale" multiplies CSS reference pixels (always 96px/inch by spec),
+   so this is the scale needed to make the output canvas exactly N pixels per inch. */
+function dpiScale(dpi){return dpi/96}
+
+let _crc32Table=null;
+function crc32(bytes){
+  if(!_crc32Table){
+    _crc32Table=new Uint32Array(256);
+    for(let n=0;n<256;n++){
+      let c=n;
+      for(let k=0;k<8;k++)c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1);
+      _crc32Table[n]=c>>>0;
+    }
+  }
+  let crc=0xFFFFFFFF;
+  for(let i=0;i<bytes.length;i++)crc=(crc>>>8)^_crc32Table[(crc^bytes[i])&0xFF];
+  return (crc^0xFFFFFFFF)>>>0;
+}
+/* Embeds a pHYs chunk declaring the image's physical DPI directly in the PNG file,
+   so print software's "Actual Size / 100%" option reproduces the exact intended
+   physical dimensions instead of guessing (or defaulting to 72/96dpi and printing
+   the sheet far larger or smaller than 4x6in/5x7in/A4). */
+function addPngDpi(dataUrl,dpi){
+  try{
+    const base64=dataUrl.split(',')[1];
+    const bin=atob(base64);
+    const bytes=new Uint8Array(bin.length);
+    for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
+    const sigLen=8,ihdrChunkLen=25; // IHDR data is always fixed at 13 bytes per the PNG spec
+    const before=bytes.slice(0,sigLen+ihdrChunkLen);
+    const after=bytes.slice(sigLen+ihdrChunkLen);
+    const pxPerMeter=Math.round(dpi/0.0254);
+    const typeAndData=new Uint8Array(13);
+    typeAndData.set([0x70,0x48,0x59,0x73],0); // 'pHYs'
+    const dv=new DataView(typeAndData.buffer);
+    dv.setUint32(4,pxPerMeter,false);dv.setUint32(8,pxPerMeter,false);
+    typeAndData[12]=1; // unit specifier: 1 = meters
+    const crc=crc32(typeAndData);
+    const chunk=new Uint8Array(4+13+4);
+    new DataView(chunk.buffer).setUint32(0,9,false); // chunk data length (9, excludes type)
+    chunk.set(typeAndData,4);
+    new DataView(chunk.buffer).setUint32(4+13,crc,false);
+    const out=new Uint8Array(before.length+chunk.length+after.length);
+    out.set(before,0);out.set(chunk,before.length);out.set(after,before.length+chunk.length);
+    let binary='';const step=0x8000;
+    for(let i=0;i<out.length;i+=step)binary+=String.fromCharCode.apply(null,out.subarray(i,i+step));
+    return 'data:image/png;base64,'+btoa(binary);
+  }catch(e){console.error('addPngDpi failed',e);return dataUrl}
+}
+
+/* html2canvas ignores CSS object-fit on <img> elements — it always stretches the
+   raw image to the element's box, ignoring "cover"/"contain", which distorts any
+   photo whose aspect ratio doesn't already match its slot. This swaps each affected
+   <img> for a background-styled div (which html2canvas sizes/crops correctly) right
+   before the snapshot is taken, inside html2canvas's onclone hook. */
+function fixImagesForSnapshot(doc){
+  // Rotated photo-slots (e.g. the 4x6in "45x35mm rotated" sheet): the slot itself stays
+  // axis-aligned; only the inner content is oversized+rotated to fill it. Replicate that
+  // with a rotated background div instead of a rotated <img>.
+  doc.querySelectorAll('.photo-slot.rotated > img').forEach(img=>{
+    const cs=getComputedStyle(img);
+    const div=doc.createElement('div');
+    div.style.width=cs.width;div.style.height=cs.height;
+    div.style.flexShrink='0';
+    div.style.transform='rotate(-90deg)';
+    div.style.backgroundImage=`url("${img.currentSrc||img.src}")`;
+    div.style.backgroundSize='cover';
+    div.style.backgroundPosition='center';
+    div.style.backgroundRepeat='no-repeat';
+    img.replaceWith(div);
+  });
+  // Plain cover images (non-rotated photo slots, polaroids).
+  doc.querySelectorAll('.photo-slot:not(.rotated) > img, .polaroid-image-area img').forEach(img=>{
+    const div=doc.createElement('div');
+    div.style.width='100%';div.style.height='100%';
+    div.style.backgroundImage=`url("${img.currentSrc||img.src}")`;
+    div.style.backgroundSize='cover';
+    div.style.backgroundPosition='center';
+    div.style.backgroundRepeat='no-repeat';
+    img.replaceWith(div);
+  });
+  // Sticker cells use object-fit:contain (letterboxed, not cropped).
+  doc.querySelectorAll('.st-cell img').forEach(img=>{
+    const div=doc.createElement('div');
+    div.style.width='100%';div.style.height='100%';
+    div.style.backgroundImage=`url("${img.currentSrc||img.src}")`;
+    div.style.backgroundSize='contain';
+    div.style.backgroundPosition='center';
+    div.style.backgroundRepeat='no-repeat';
+    img.replaceWith(div);
+  });
+}
+
 let currentPhotoSheetId='photo-sheet-mm';
 function generateA430Slots(){
   const sheet=document.getElementById('photo-sheet-a4-30');if(!sheet)return;
@@ -933,8 +1026,8 @@ function setupPhotoListeners(){
   document.getElementById('photo-print').addEventListener('click',()=>{updateActivePrintSheet();setTimeout(()=>window.print(),200)});
   document.getElementById('photo-download').addEventListener('click',()=>{
     const sheet=getActivePhotoSheet();if(!sheet)return;showToast('Generating image...');
-    html2canvas(sheet,{scale:2,useCORS:true,backgroundColor:'#ffffff'}).then(canvas=>{
-      const link=document.createElement('a');link.download='printstudio-photos.png';link.href=canvas.toDataURL('image/png');link.click();showToast('Image downloaded.');
+    html2canvas(sheet,{scale:dpiScale(300),useCORS:true,backgroundColor:'#ffffff',onclone:fixImagesForSnapshot}).then(canvas=>{
+      const link=document.createElement('a');link.download='printstudio-photos.png';link.href=addPngDpi(canvas.toDataURL('image/png'),300);link.click();showToast('Image downloaded — sized for actual-size printing at 300 DPI.');
     }).catch(err=>showToast('Download failed: '+err.message));
   });
   document.querySelectorAll('.photo-sheet').forEach(sheet=>{
@@ -1082,9 +1175,10 @@ function ppGetCropRect(){
 function ppRender(){
   if(!ppOriginalImg)return;
   const {w:tw,h:th}=ppTargetMM();
-  const pxW=Math.round(tw/25.4*300),pxH=Math.round(th/25.4*300);
+  const pxW=Math.round(tw/25.4*600),pxH=Math.round(th/25.4*600);
   const canvas=ppEl('pp-canvas');canvas.width=pxW;canvas.height=pxH;
   const ctx=canvas.getContext('2d');
+  ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
   const rect=ppGetCropRect();
   const src=ppBgRemovedImg||ppOriginalImg;
   ctx.clearRect(0,0,pxW,pxH);
@@ -1289,15 +1383,15 @@ function setupPassport(){
   ppEl('pp-download-sheet').addEventListener('click',()=>{
     const sheet=ppEl('pp-print-sheet');
     showToast('Generating image…');
-    html2canvas(sheet,{scale:3,useCORS:true,backgroundColor:'#ffffff'}).then(canvas=>{
-      const a=document.createElement('a');a.download='passport-photo-sheet.png';a.href=canvas.toDataURL('image/png');a.click();
+    html2canvas(sheet,{scale:dpiScale(300),useCORS:true,backgroundColor:'#ffffff',onclone:fixImagesForSnapshot}).then(canvas=>{
+      const a=document.createElement('a');a.download='passport-photo-sheet.png';a.href=addPngDpi(canvas.toDataURL('image/png'),300);a.click();
     }).catch(err=>showToast('Download failed: '+err.message));
   });
   ppEl('pp-download-single').addEventListener('click',()=>{
     const canvas=ppEl('pp-canvas');
     const a=document.createElement('a');
     a.download=`passport-photo-${ppCountryData.n.replace(/[^a-z0-9]+/gi,'-').toLowerCase()}.png`;
-    a.href=canvas.toDataURL('image/png');a.click();
+    a.href=addPngDpi(canvas.toDataURL('image/png'),600);a.click();
   });
 }
 
@@ -1492,11 +1586,12 @@ function stRenderSheet(layout,marginMM,idx,totalSheets,scale){
   const dlBtn=document.createElement('button');dlBtn.className='btn btn-ghost';dlBtn.type='button';dlBtn.textContent='Download PNG';
   dlBtn.addEventListener('click',()=>{
     showToast('Generating image…');
-    html2canvas(sheet,{scale:3,useCORS:true,backgroundColor:'#ffffff',onclone:doc=>{
+    html2canvas(sheet,{scale:dpiScale(300),useCORS:true,backgroundColor:'#ffffff',onclone:doc=>{
       doc.querySelectorAll('.st-handle').forEach(h=>h.remove());
       doc.querySelectorAll('.st-cell').forEach(c=>{c.style.outline='none'});
+      fixImagesForSnapshot(doc);
     }}).then(canvas=>{
-      const a=document.createElement('a');a.download=`sticker-sheet-${idx}.png`;a.href=canvas.toDataURL('image/png');a.click();
+      const a=document.createElement('a');a.download=`sticker-sheet-${idx}.png`;a.href=addPngDpi(canvas.toDataURL('image/png'),300);a.click();
     }).catch(err=>showToast('Download failed: '+err.message));
   });
   actions.appendChild(dlBtn);
