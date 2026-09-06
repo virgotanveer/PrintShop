@@ -930,45 +930,76 @@ function addPngDpi(dataUrl,dpi){
 
 /* html2canvas ignores CSS object-fit on <img> elements — it always stretches the
    raw image to the element's box, ignoring "cover"/"contain", which distorts any
-   photo whose aspect ratio doesn't already match its slot. This swaps each affected
-   <img> for a background-styled div (which html2canvas sizes/crops correctly) right
-   before the snapshot is taken, inside html2canvas's onclone hook. */
-function fixImagesForSnapshot(doc){
-  // Rotated photo-slots (e.g. the 4x6in "45x35mm rotated" sheet): the slot itself stays
-  // axis-aligned; only the inner content is oversized+rotated to fill it. Replicate that
-  // with a rotated background div instead of a rotated <img>.
-  doc.querySelectorAll('.photo-slot.rotated > img').forEach(img=>{
-    const cs=getComputedStyle(img);
-    const div=doc.createElement('div');
-    div.style.width=cs.width;div.style.height=cs.height;
-    div.style.flexShrink='0';
-    div.style.transform='rotate(-90deg)';
-    div.style.backgroundImage=`url("${img.currentSrc||img.src}")`;
-    div.style.backgroundSize='cover';
-    div.style.backgroundPosition='center';
-    div.style.backgroundRepeat='no-repeat';
-    img.replaceWith(div);
+   photo whose aspect ratio doesn't already match its slot. Swapping the <img> for a
+   CSS background-image with background-size:cover/contain fixes the distortion, but
+   html2canvas rasterizes that cropping itself and does it poorly — producing visibly
+   grainy, low-quality output even though the underlying photo is high resolution.
+   The fix: do the cropping ourselves on a real <canvas> (with high-quality smoothing)
+   BEFORE the snapshot, then hand html2canvas an already-correctly-cropped image that
+   it only needs to stretch 1:1 into place — something it does cleanly. */
+let _snapIdSeq=1;
+function prepareImageCrops(container){
+  const map=new Map();
+  const items=[];
+  container.querySelectorAll('.photo-slot:not(.empty) > img').forEach(img=>{
+    items.push({img,slot:img.parentElement,mode:'cover',rotated:img.parentElement.classList.contains('rotated')});
   });
-  // Plain cover images (non-rotated photo slots, polaroids).
-  doc.querySelectorAll('.photo-slot:not(.rotated) > img, .polaroid-image-area img').forEach(img=>{
-    const div=doc.createElement('div');
-    div.style.width='100%';div.style.height='100%';
-    div.style.backgroundImage=`url("${img.currentSrc||img.src}")`;
-    div.style.backgroundSize='cover';
-    div.style.backgroundPosition='center';
-    div.style.backgroundRepeat='no-repeat';
-    img.replaceWith(div);
+  container.querySelectorAll('.st-cell > img').forEach(img=>{
+    items.push({img,slot:img.parentElement,mode:'contain',rotated:false});
   });
-  // Sticker cells use object-fit:contain (letterboxed, not cropped).
-  doc.querySelectorAll('.st-cell img').forEach(img=>{
-    const div=doc.createElement('div');
-    div.style.width='100%';div.style.height='100%';
-    div.style.backgroundImage=`url("${img.currentSrc||img.src}")`;
-    div.style.backgroundSize='contain';
-    div.style.backgroundPosition='center';
-    div.style.backgroundRepeat='no-repeat';
-    img.replaceWith(div);
+  items.forEach(({img,slot,mode,rotated})=>{
+    if(!img.naturalWidth)return;
+    const id='snap'+(_snapIdSeq++);
+    slot.dataset.snapId=id;
+    const rect=slot.getBoundingClientRect();
+    const boxW=(rotated?rect.height:rect.width)||1;
+    const boxH=(rotated?rect.width:rect.height)||1;
+    const outScale=3; // headroom above the on-screen box size so downstream scaling stays sharp
+    const outW=Math.max(1,Math.round(boxW*outScale)),outH=Math.max(1,Math.round(boxH*outScale));
+    const canvas=document.createElement('canvas');canvas.width=outW;canvas.height=outH;
+    const ctx=canvas.getContext('2d');
+    ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+    const iw=img.naturalWidth,ih=img.naturalHeight;
+    if(mode==='cover'){
+      const boxRatio=outW/outH,imgRatio=iw/ih;
+      let sx,sy,sw,sh;
+      if(imgRatio>boxRatio){sh=ih;sw=ih*boxRatio;sx=(iw-sw)/2;sy=0}
+      else{sw=iw;sh=iw/boxRatio;sx=0;sy=(ih-sh)/2}
+      ctx.drawImage(img,sx,sy,sw,sh,0,0,outW,outH);
+    }else{ // contain
+      const boxRatio=outW/outH,imgRatio=iw/ih;
+      let dw,dh,dx,dy;
+      if(imgRatio>boxRatio){dw=outW;dh=outW/imgRatio;dx=0;dy=(outH-dh)/2}
+      else{dh=outH;dw=outH*imgRatio;dy=0;dx=(outW-dw)/2}
+      ctx.drawImage(img,0,0,iw,ih,dx,dy,dw,dh);
+    }
+    map.set(id,{dataUrl:canvas.toDataURL('image/png'),rotated});
   });
+  return map;
+}
+function applyImageCrops(doc,map){
+  doc.querySelectorAll('[data-snap-id]').forEach(slot=>{
+    const info=map.get(slot.dataset.snapId);
+    if(!info)return;
+    const img=slot.querySelector(':scope > img');
+    const div=doc.createElement('div');
+    div.style.backgroundImage=`url("${info.dataUrl}")`;
+    div.style.backgroundSize='100% 100%';
+    div.style.backgroundRepeat='no-repeat';
+    if(info.rotated&&img){
+      const cs=getComputedStyle(img);
+      div.style.width=cs.width;div.style.height=cs.height;
+      div.style.flexShrink='0';
+      div.style.transform='rotate(-90deg)';
+    }else{
+      div.style.width='100%';div.style.height='100%';
+    }
+    if(img)img.remove();
+    slot.appendChild(div);
+  });
+}
+function clearSnapIds(container){
+  container.querySelectorAll('[data-snap-id]').forEach(el=>{delete el.dataset.snapId});
 }
 
 let currentPhotoSheetId='photo-sheet-mm';
@@ -1026,9 +1057,11 @@ function setupPhotoListeners(){
   document.getElementById('photo-print').addEventListener('click',()=>{updateActivePrintSheet();setTimeout(()=>window.print(),200)});
   document.getElementById('photo-download').addEventListener('click',()=>{
     const sheet=getActivePhotoSheet();if(!sheet)return;showToast('Generating image...');
-    html2canvas(sheet,{scale:dpiScale(300),useCORS:true,backgroundColor:'#ffffff',onclone:fixImagesForSnapshot}).then(canvas=>{
+    const cropMap=prepareImageCrops(sheet);
+    html2canvas(sheet,{scale:dpiScale(300),useCORS:true,backgroundColor:'#ffffff',onclone:doc=>applyImageCrops(doc,cropMap)}).then(canvas=>{
+      clearSnapIds(sheet);
       const link=document.createElement('a');link.download='printstudio-photos.png';link.href=addPngDpi(canvas.toDataURL('image/png'),300);link.click();showToast('Image downloaded — sized for actual-size printing at 300 DPI.');
-    }).catch(err=>showToast('Download failed: '+err.message));
+    }).catch(err=>{clearSnapIds(sheet);showToast('Download failed: '+err.message)});
   });
   document.querySelectorAll('.photo-sheet').forEach(sheet=>{
     sheet.addEventListener('dragover',e=>{e.preventDefault();sheet.classList.add('drag')});
@@ -1383,9 +1416,11 @@ function setupPassport(){
   ppEl('pp-download-sheet').addEventListener('click',()=>{
     const sheet=ppEl('pp-print-sheet');
     showToast('Generating image…');
-    html2canvas(sheet,{scale:dpiScale(300),useCORS:true,backgroundColor:'#ffffff',onclone:fixImagesForSnapshot}).then(canvas=>{
+    const cropMap=prepareImageCrops(sheet);
+    html2canvas(sheet,{scale:dpiScale(300),useCORS:true,backgroundColor:'#ffffff',onclone:doc=>applyImageCrops(doc,cropMap)}).then(canvas=>{
+      clearSnapIds(sheet);
       const a=document.createElement('a');a.download='passport-photo-sheet.png';a.href=addPngDpi(canvas.toDataURL('image/png'),300);a.click();
-    }).catch(err=>showToast('Download failed: '+err.message));
+    }).catch(err=>{clearSnapIds(sheet);showToast('Download failed: '+err.message)});
   });
   ppEl('pp-download-single').addEventListener('click',()=>{
     const canvas=ppEl('pp-canvas');
@@ -1586,13 +1621,15 @@ function stRenderSheet(layout,marginMM,idx,totalSheets,scale){
   const dlBtn=document.createElement('button');dlBtn.className='btn btn-ghost';dlBtn.type='button';dlBtn.textContent='Download PNG';
   dlBtn.addEventListener('click',()=>{
     showToast('Generating image…');
+    const cropMap=prepareImageCrops(sheet);
     html2canvas(sheet,{scale:dpiScale(300),useCORS:true,backgroundColor:'#ffffff',onclone:doc=>{
       doc.querySelectorAll('.st-handle').forEach(h=>h.remove());
       doc.querySelectorAll('.st-cell').forEach(c=>{c.style.outline='none'});
-      fixImagesForSnapshot(doc);
+      applyImageCrops(doc,cropMap);
     }}).then(canvas=>{
+      clearSnapIds(sheet);
       const a=document.createElement('a');a.download=`sticker-sheet-${idx}.png`;a.href=addPngDpi(canvas.toDataURL('image/png'),300);a.click();
-    }).catch(err=>showToast('Download failed: '+err.message));
+    }).catch(err=>{clearSnapIds(sheet);showToast('Download failed: '+err.message)});
   });
   actions.appendChild(dlBtn);
   block.appendChild(label);block.appendChild(sheet);block.appendChild(actions);
