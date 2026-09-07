@@ -1008,18 +1008,130 @@ function generateA430Slots(){
   for(let i=0;i<30;i++){const d=document.createElement('div');d.className='photo-slot empty';sheet.appendChild(d)}
 }
 function getActivePhotoSheet(){return document.getElementById(currentPhotoSheetId)}
+
+/* Fixed geometry (in mm) for every Photos-tab sheet layout, taken directly from the
+   CSS above. Used to render the sheet straight onto a <canvas> for downloads, instead
+   of asking html2canvas to snapshot the DOM — which reliably introduced visible
+   graininess whenever it had to crop or scale a photo itself, even when the source
+   photo was high resolution. Drawing it ourselves with a real 2D context gives full
+   control over resampling quality. */
+const PHOTO_SHEET_GEOM={
+  'photo-sheet-mm':      {pageW:101.6,pageH:152.4,groups:[{cols:2,rows:3,pw:45,  ph:35,  gap:2,  rotated:true }]},
+  'photo-sheet-inch':    {pageW:101.6,pageH:152.4,groups:[{cols:2,rows:3,pw:38.1,ph:38.1,gap:2,  rotated:false}]},
+  'photo-sheet-4r-1_5x2':{pageW:101.6,pageH:152.4,groups:[{cols:2,rows:2,pw:38.1,ph:50.8,gap:2,  rotated:false}]},
+  'photo-sheet-5r':      {pageW:127,  pageH:177.8,groups:[{cols:2,rows:3,pw:50.8,ph:50.8,gap:2,  rotated:false}]},
+  'photo-sheet-5r-50x70':{pageW:127,  pageH:177.8,groups:[{cols:2,rows:2,pw:50,  ph:70,  gap:2,  rotated:false}]},
+  'photo-sheet-5r-50x60':{pageW:127,  pageH:177.8,groups:[{cols:2,rows:2,pw:50,  ph:60,  gap:2,  rotated:false}]},
+  'photo-sheet-a4-30':   {pageW:210,  pageH:297,  groups:[{cols:5,rows:6,pw:35,  ph:45,  gap:1.5,rotated:false}]},
+  'photo-sheet-mixed':   {pageW:101.6,pageH:152.4,stacked:true,groupGap:3,groups:[
+    {cols:2,rows:2,pw:25.4,ph:25.4,gap:2,rotated:false},
+    {cols:2,rows:2,pw:45,  ph:35,  gap:2,rotated:true }
+  ]}
+};
+function mm2px(mm,dpi){return mm/25.4*dpi}
+function drawCoverFit(ctx,img,dx,dy,dw,dh){
+  const iw=img.naturalWidth,ih=img.naturalHeight;
+  const boxRatio=dw/dh,imgRatio=iw/ih;
+  let sx,sy,sw,sh;
+  if(imgRatio>boxRatio){sh=ih;sw=ih*boxRatio;sx=(iw-sw)/2;sy=0}
+  else{sw=iw;sh=iw/boxRatio;sx=0;sy=(ih-sh)/2}
+  ctx.drawImage(img,sx,sy,sw,sh,dx,dy,dw,dh);
+}
+function renderPhotoSheetToCanvas(sheetId,dpi){
+  const geom=PHOTO_SHEET_GEOM[sheetId];
+  const sheetEl=document.getElementById(sheetId);
+  if(!geom||!sheetEl)return null;
+  const pageWpx=Math.round(mm2px(geom.pageW,dpi)),pageHpx=Math.round(mm2px(geom.pageH,dpi));
+  const canvas=document.createElement('canvas');canvas.width=pageWpx;canvas.height=pageHpx;
+  const ctx=canvas.getContext('2d');
+  ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+  ctx.fillStyle='#ffffff';ctx.fillRect(0,0,pageWpx,pageHpx);
+
+  const domGroups=geom.stacked?Array.from(sheetEl.querySelectorAll(':scope > .photo-group')):[sheetEl];
+  const groupBoxes=geom.groups.map(g=>({w:g.cols*g.pw+(g.cols-1)*g.gap,h:g.rows*g.ph+(g.rows-1)*g.gap}));
+  let groupOffsets;
+  if(geom.stacked){
+    const totalH=groupBoxes.reduce((s,b)=>s+b.h,0)+(groupBoxes.length-1)*geom.groupGap;
+    let y=(geom.pageH-totalH)/2;
+    groupOffsets=groupBoxes.map(b=>{const x=(geom.pageW-b.w)/2;const off={x,y};y+=b.h+geom.groupGap;return off});
+  }else{
+    const b=groupBoxes[0];
+    groupOffsets=[{x:(geom.pageW-b.w)/2,y:(geom.pageH-b.h)/2}];
+  }
+
+  geom.groups.forEach((g,gi)=>{
+    const domGroup=domGroups[gi];if(!domGroup)return;
+    const slots=Array.from(domGroup.querySelectorAll(':scope > .photo-slot'));
+    const off=groupOffsets[gi];
+    const borderPx=Math.max(1,mm2px(0.3,dpi));
+    for(let r=0;r<g.rows;r++){
+      for(let c=0;c<g.cols;c++){
+        const idx=r*g.cols+c;
+        const slot=slots[idx];
+        const img=slot?slot.querySelector('img'):null;
+        const xmm=off.x+c*(g.pw+g.gap),ymm=off.y+r*(g.ph+g.gap);
+        const xpx=mm2px(xmm,dpi),ypx=mm2px(ymm,dpi);
+        const wpx=mm2px(g.pw,dpi),hpx=mm2px(g.ph,dpi);
+        ctx.fillStyle='#ffffff';ctx.fillRect(xpx,ypx,wpx,hpx);
+        if(img&&img.naturalWidth){
+          ctx.save();
+          ctx.beginPath();ctx.rect(xpx,ypx,wpx,hpx);ctx.clip();
+          if(g.rotated){
+            const boxW=mm2px(g.ph,dpi),boxH=mm2px(g.pw,dpi);
+            ctx.translate(xpx+wpx/2,ypx+hpx/2);ctx.rotate(-Math.PI/2);
+            drawCoverFit(ctx,img,-boxW/2,-boxH/2,boxW,boxH);
+          }else{
+            drawCoverFit(ctx,img,xpx,ypx,wpx,hpx);
+          }
+          ctx.restore();
+        }
+        ctx.strokeStyle='#000000';ctx.lineWidth=borderPx;
+        ctx.strokeRect(xpx+borderPx/2,ypx+borderPx/2,wpx-borderPx,hpx-borderPx);
+      }
+    }
+  });
+  return canvas;
+}
+
+/* Checks whether an uploaded photo has enough native pixels to fill its slot cleanly
+   at true 300 DPI print resolution. If the source photo is smaller than that, no amount
+   of cropping/rendering fixes can add detail that was never captured — it will look
+   soft or pixelated once enlarged to fill the slot, which is a source-image limitation
+   rather than a bug in the app. */
+function checkPhotoResolution(slot,img){
+  const rotated=slot.classList.contains('rotated');
+  const rect=slot.getBoundingClientRect();
+  const factor=300/96;
+  const reqW=Math.round((rotated?rect.height:rect.width)*factor);
+  const reqH=Math.round((rotated?rect.width:rect.height)*factor);
+  const ok=img.naturalWidth>=reqW*0.85&&img.naturalHeight>=reqH*0.85;
+  return {ok,reqW,reqH,natW:img.naturalWidth,natH:img.naturalHeight};
+}
 function fillPhotoSlots(files){
   const sheet=getActivePhotoSheet();if(!sheet)return;
-  const slots=sheet.querySelectorAll('.photo-slot.empty');let placed=0,chain=Promise.resolve();
+  const slots=sheet.querySelectorAll('.photo-slot.empty');let placed=0,lowRes=0,sampleReq=null,chain=Promise.resolve();
   for(let i=0;i<files.length&&i<slots.length;i++){
     (function(slot,file){
-      chain=chain.then(()=>readFileAsUrl(file).then(url=>{
+      chain=chain.then(()=>readFileAsUrl(file).then(url=>new Promise(resolve=>{
         slot.classList.remove('empty');const old=slot.querySelector('img');if(old)old.remove();
-        const img=document.createElement('img');img.src=url;slot.appendChild(img);
-      }));
+        const img=document.createElement('img');
+        img.onload=()=>{
+          const check=checkPhotoResolution(slot,img);
+          if(!check.ok){lowRes++;sampleReq=check}
+          resolve();
+        };
+        img.onerror=resolve;
+        img.src=url;slot.appendChild(img);
+      })));
     })(slots[i],files[i]);placed++;
   }
-  chain.then(()=>{if(placed>0)showToast(placed+' photo(s) placed.')});
+  chain.then(()=>{
+    if(placed>0){
+      let msg=placed+' photo(s) placed.';
+      if(lowRes>0&&sampleReq)msg+=` Heads up: ${lowRes} photo${lowRes===1?'':'s'} ${lowRes===1?'is':'are'} lower-resolution than ideal for this slot size (aim for at least ${sampleReq.reqW}×${sampleReq.reqH}px) — may look soft or grainy when printed.`;
+      showToast(msg);
+    }
+  });
 }
 function updateActivePrintSheet(){
   document.querySelectorAll('.photo-sheet').forEach(s=>s.classList.remove('active-print-sheet'));
@@ -1043,11 +1155,24 @@ function setupPhotoListeners(){
     const sheet=getActivePhotoSheet();if(!sheet)return;
     const first=sheet.querySelector('.photo-slot:not(.empty) img');if(!first){showToast('No photo to repeat.');return}
     const src=first.src;
-    sheet.querySelectorAll('.photo-slot').forEach(slot=>{
+    const slots=Array.from(sheet.querySelectorAll('.photo-slot'));
+    let loaded=0,lowRes=0,sampleReq=null;
+    slots.forEach(slot=>{
       slot.classList.remove('empty');const old=slot.querySelector('img');if(old)old.remove();
-      const img=document.createElement('img');img.src=src;slot.appendChild(img);
+      const img=document.createElement('img');
+      img.onload=()=>{
+        loaded++;
+        const check=checkPhotoResolution(slot,img);
+        if(!check.ok){lowRes++;sampleReq=check}
+        if(loaded===slots.length){
+          let msg='Repeated to all slots.';
+          if(lowRes>0&&sampleReq)msg+=` Heads up: this photo is lower-resolution than ideal for this slot size (aim for at least ${sampleReq.reqW}×${sampleReq.reqH}px) — may look soft or grainy when printed.`;
+          showToast(msg);updateActivePrintSheet();
+        }
+      };
+      img.onerror=()=>{loaded++;if(loaded===slots.length){showToast('Repeated to all slots.');updateActivePrintSheet()}};
+      img.src=src;slot.appendChild(img);
     });
-    showToast('Repeated to all slots.');updateActivePrintSheet();
   });
   document.getElementById('photo-clear').addEventListener('click',()=>{
     const sheet=getActivePhotoSheet();if(!sheet)return;
@@ -1056,12 +1181,17 @@ function setupPhotoListeners(){
   });
   document.getElementById('photo-print').addEventListener('click',()=>{updateActivePrintSheet();setTimeout(()=>window.print(),200)});
   document.getElementById('photo-download').addEventListener('click',()=>{
-    const sheet=getActivePhotoSheet();if(!sheet)return;showToast('Generating image...');
-    const cropMap=prepareImageCrops(sheet);
-    html2canvas(sheet,{scale:dpiScale(300),useCORS:true,backgroundColor:'#ffffff',onclone:doc=>applyImageCrops(doc,cropMap)}).then(canvas=>{
-      clearSnapIds(sheet);
-      const link=document.createElement('a');link.download='printstudio-photos.png';link.href=addPngDpi(canvas.toDataURL('image/png'),300);link.click();showToast('Image downloaded — sized for actual-size printing at 300 DPI.');
-    }).catch(err=>{clearSnapIds(sheet);showToast('Download failed: '+err.message)});
+    const sheet=getActivePhotoSheet();if(!sheet)return;
+    showToast('Generating image...');
+    setTimeout(()=>{
+      try{
+        const canvas=renderPhotoSheetToCanvas(currentPhotoSheetId,300);
+        if(!canvas){showToast('Could not generate image for this sheet.');return}
+        const link=document.createElement('a');link.download='printstudio-photos.png';
+        link.href=addPngDpi(canvas.toDataURL('image/png'),300);link.click();
+        showToast('Image downloaded — sized for actual-size printing at 300 DPI.');
+      }catch(err){showToast('Download failed: '+err.message)}
+    },30);
   });
   document.querySelectorAll('.photo-sheet').forEach(sheet=>{
     sheet.addEventListener('dragover',e=>{e.preventDefault();sheet.classList.add('drag')});
